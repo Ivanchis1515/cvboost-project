@@ -1,0 +1,275 @@
+/* Header.css */
+/* scrollbar */
+/* ::-webkit-scrollbar {
+    width: 11px;
+    height: 11px;
+    background-color: #e3e3e3;
+}
+  
+::-webkit-scrollbar-thumb {
+    background-color: #806f80;
+    background: -moz-linear-gradient(45deg, rgb(238, 205, 163) 0%, rgb(239, 98, 159) 100%); 
+    background: -webkit-linear-gradient(45deg, rgb(238, 205, 163) 0%, rgb(239, 98, 159) 100%);
+    background: linear-gradient(45deg, rgb(238, 205, 163) 0%, rgb(239, 98, 159) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eecda3', endColorstr='#ef629f', GradientType=1);
+}
+
+::-webkit-scrollbar,
+::-webkit-scrollbar-thumb {
+    border: 5px solid #e3e3e3;
+} */
+/* end scrollbar */
+
+body {
+    background-color: #fff;
+    margin: 0px;
+    overflow-x: hidden;
+    font-family: 'Raleway', sans-serif;
+    font-size: 11px;
+}
+
+header {
+    margin: 0px;
+    /* Gradiente de color */
+    background: rgb(243, 243, 243); /* Old browsers */
+    background: -moz-linear-gradient(45deg, rgb(255, 255, 255) 0%, rgb(167, 231, 181) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(45deg, rgb(0, 0, 0) 0%, rgb(231, 23, 23)); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(45deg, rgb(253, 253, 253) 0%, rgb(147, 196, 153)00%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    width: 100%;
+    height: calc(100vh - 0px);
+    position: relative;
+    z-index: 3;
+    overflow: hidden;
+}
+
+/* header {
+    margin: 0px;
+    background: rgb(238, 205, 163); Old browsers 
+    background: -moz-linear-gradient(45deg, rgb(238, 205, 163) 0%, rgb(239, 98, 159) 100%);  FF3.6-15
+    background: -webkit-linear-gradient(45deg, rgb(238, 205, 163) 0%, rgb(239, 98, 159) 100%); Chrome10-25,Safari5.1-6
+    background: linear-gradient(45deg, rgb(238, 205, 163) 0%, rgb(239, 98, 159) 100%); 
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eecda3', endColorstr='#ef629f', GradientType=1);
+    width: 100%;
+    height: calc(100vh - 0px);
+    position: relative;
+    z-index: 3;
+    overflow: hidden;
+} */
+
+
+header .waves {
+    position: absolute;
+    bottom: 0px;
+    left: -200px;
+    right: 0px;
+    width: 100%;
+    overflow: hidden;
+    height: 400px;
+    z-index: 4;
+}
+
+header .wave {
+    width: 150%;
+    display: block;
+    overflow: hidden;
+    bottom: 0px;
+    position: absolute;
+    left: -200px;
+    z-index: 5;
+    -webkit-animation: wavy 5s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite alternate;
+    animation: wavy 5s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite alternate;
+    transition-duration: 0.3s;
+}
+
+header .wave2 {
+    position: absolute;
+    bottom: 0px;
+    width: 150%;
+    left: -100px;
+    transition-duration: 0.3s;
+    -webkit-animation: wavy2 8s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite alternate-reverse;
+    animation: wavy2 8s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite alternate-reverse;
+    z-index: 6;
+}
+
+/* colores de las olas */
+.st0 {
+    fill: #b7eabc; 
+    /* fill: rgba(255, 255, 255, 0.25); */
+}
+
+.st1 {
+  fill: #1e7e34;
+  /* fill: rgba(255, 255, 255, 0.5); */
+}
+/*  */
+
+@keyframes wavy {
+    0%,
+    100% {
+        transform: translate(-100px, -10px);
+        -webkit-transform: rotate(0.5deg);
+        -moz-transform: rotate(0.5deg);
+        -o-transform: rotate(0.5deg);
+    }
+    50% {
+        transform: translate(100px, 50px);
+    }
+    100% {
+        -webkit-transform: rotate(-0.45deg);
+        -moz-transform: rotate(-0.45deg);
+        -o-transform: rotate(-0.45deg);
+    }
+}
+
+@keyframes wavy2 {
+    0% {
+        transform: translate(-50px, 10px);
+        transform: scale(1);
+    }
+    50% {
+        transform: translate(-100px, -20px) scale(1.25);
+    }
+    100% {
+        transform: translate(20px, 50px) scale(1);
+    }
+}
+
+header .maintitle {
+    width: 75%;
+    height: auto;
+    margin: auto;
+    top: 30%;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    position: absolute;
+    color: #fff;
+    text-align: center;
+    font-family: 'Raleway', sans-serif;
+}
+
+header .maintitle h1 {
+    margin: 0px;
+    padding: 0px;
+    font-weight: normal;
+    letter-spacing: 0.25em;
+    font-size: 5em;
+    text-transform:initial;
+}
+
+header .maintitle h2 {
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0.25em;
+    transition-duration: 0.5s;
+    display: inline-block;
+    font-size: 12px;
+    position: relative;
+    z-index: 10;
+    margin-top: 10px;
+    padding-top: 10px;
+}
+
+.description{
+    margin-bottom: 20px;
+    font-size: 1.7em;
+    color: #fff;
+}
+
+header .maintitle h2 a {
+    color: #fff;
+    text-decoration: none;
+    transition-duration: 0.5s;
+    padding: 10px 25px;
+    border: 2px solid rgba(255, 255, 255, 0.75);
+    border-radius: 100px;
+}
+
+header .maintitle h2 a:hover {
+    padding: 11px 35px;
+    color: #28a745;
+    background-color: #fff;
+}
+
+section {
+    display: block;
+}
+
+section#sec1 {
+    background-color: #f6f6f6;
+    min-height: auto;
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#f9eddd+0,f9d5dc+100 */
+    background: rgb(249, 237, 221); /* Old browsers */
+    background: -moz-linear-gradient(left, rgb(249, 237, 221) 0%, rgb(249, 213, 220) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(left, rgb(249, 237, 221) 0%, rgb(249, 213, 220) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to right, rgb(249, 237, 221) 0%, rgb(249, 213, 220) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f9eddd', endColorstr='#f9d5dc', GradientType=1); /* IE6-9 */
+}
+
+/* Media Queries para diseño responsivo */
+@media (max-width: 1200px) {
+    header .maintitle h1 {
+        font-size: 4em;
+    }
+
+    header .maintitle h2 {
+        font-size: 12px;
+    }
+
+    .description {
+        font-size: 1.2em;
+    }
+
+    header .maintitle h2 a {
+        padding: 8px 20px;
+    }
+
+    header .maintitle h2 a:hover {
+        padding: 9px 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    header .maintitle {
+        width: 90%;
+    }
+
+    header .maintitle h1 {
+        font-size: 2.5em;
+    }
+
+    .description {
+        font-size: 1em;
+    }
+
+    header .maintitle h2 a {
+        padding: 6px 15px;
+    }
+
+    header .maintitle h2 a:hover {
+        padding: 7px 25px;
+    }
+}
+
+@media (max-width: 480px) {
+    header .maintitle h1 {
+        font-size: 2em;
+    }
+
+    .description {
+        font-size: 0.8em;
+    }
+
+    header .maintitle h2 {
+        font-size: 8px;
+    }
+
+    header .maintitle h2 a {
+        padding: 4px 10px;
+    }
+
+    header .maintitle h2 a:hover {
+        padding: 5px 15px;
+    }
+}
