@@ -4,9 +4,17 @@
 
 ### Equipo de trabajo 
 Hernández Velázquez Jorge Ivan UTP0151511
+
+
 Salas Amaro Nidian	UTP0149290
+
+
 Alarcon Briones Jose Alejandro UTP0149700
+
+
 Jose Angel Luna Sedeño UTP0149900
+
+
 
 ### Datos docente
 Desarrollo Web Integral
