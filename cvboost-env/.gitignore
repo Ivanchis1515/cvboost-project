@@ -1,0 +1,8 @@
+# Excluir la carpeta del entorno virtual
+venv/
+
+# Otras posibles exclusiones:
+__pycache__/
+*.pyc
+*.pyo
+.env
