@@ -1,6 +1,10 @@
 # ProyectoCV
-### Universidad Tecnológica De Puebla
-### Tecnologías de la Información Ingeniería en Desarrollo y Gestión De Software
+## Institución 
+
+ Universidad Tecnológica De Puebla
+
+
+ Tecnologías de la Información Ingeniería en Desarrollo y Gestión De Software
 
 ### Equipo de trabajo 
 Hernández Velázquez Jorge Ivan UTP0151511
