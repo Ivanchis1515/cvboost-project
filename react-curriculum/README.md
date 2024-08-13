@@ -131,7 +131,7 @@ CVBackend/
 ## Librerías 
 
 
-Frontend:
+
 - **React:** Biblioteca principal para construir la interfaz de usuario.
 Copiar código
 - npm install react react-dom
@@ -151,6 +151,15 @@ Copiar código
 Copiar código
 - npm install react-router-dom
 
+
+- **Dnspython:** Es una librería que te permite realizar consultas DNS de manera sencilla en Python. Puedes consultar registros A, MX, TXT, y más
+Copiar código
+- pip install dnspython
+
+
+- **Uvicorn**:Mejor enfoque en la simplicidad, rendimiento y escalabilidad.
+Copiar código
+- uvicorn main:app --reload
 
 
 
