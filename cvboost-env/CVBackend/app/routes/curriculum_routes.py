@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, status #enrutador, excepcioneshhtp
 from fastapi.responses import JSONResponse #respuestasjson
 from app.database_config import get_database_connection #configuracion de bd
 ##importaciones complemento
-from app.models.curriculums_model import CVUserCreate, UserInformationCreate, UserSectionRequest, UserEducationCreate, UserWorkExperienceCreate
+from app.models.curriculums_model import CVUserCreate, UserInformationCreate, UserSectionRequest, UserEducationCreate, UserWorkExperienceCreate, UserSkills
 import json
 
 # Inicializa el enrutador de FastAPI
@@ -337,6 +337,7 @@ def update_user_education(user_education: UserEducationCreate):
         cursor.close()
         connection.close()
 
+#eliminar educacion
 @router.delete("/delete-education/{id}")
 def delete_user_education(id: int):
     connection = get_database_connection() #obtener la conexion a la base de datos
@@ -536,6 +537,7 @@ def update_work_experience(work_experience: UserWorkExperienceCreate):
         cursor.close()
         connection.close()
 
+#elimina la experiencia del usuario
 @router.delete("/delete-work-experience/{id}")
 def delete_user_education(id: int):
     connection = get_database_connection() #obtener la conexion a la base de datos
@@ -564,6 +566,153 @@ def delete_user_education(id: int):
 
     except Exception as err:
         print(f"Error: {err}") #depuracion
+        raise HTTPException(status_code=500, detail=f"Database error: {err}")
+    finally:
+        cursor.close()
+        connection.close()
+
+#USUARIO APTITUDES
+#ruta para crear una aptitud
+@router.post("/user-skills")
+def create_user_skills(user_skills: UserSkills):
+    connection = get_database_connection()  #obtener la conexion a la base de datos
+    cursor = connection.cursor()  #obtener el cursor
+
+    try:
+        #insertar datos en la tabla UserSkills
+        insert_query = """
+            INSERT INTO user_skills (user_id, cvid_user_template, skill_name)
+            VALUES (%s, %s, %s)
+        """
+        cursor.execute(insert_query, (
+            user_skills.user_id, #id del usuario
+            user_skills.cvid_user_template, #plantilla actual
+            user_skills.skill  #convertir la lista de habilidades a formato JSON
+        ))
+        connection.commit() #ejecuta la insercion 
+
+        #obtener el ID de la ultima fila insertada
+        inserted_id = cursor.lastrowid
+
+        #consultar el registro insertado
+        select_query = "SELECT * FROM user_skills WHERE id = %s"
+        cursor.execute(select_query, (inserted_id,)) #ejecuta la consulta
+        new_record = cursor.fetchone() #selecciona el registro
+
+        #convertir el registro a un formato adecuado para la respuesta JSON
+        if new_record:
+            new_record = {
+                "id": new_record[0],
+                "user_id": new_record[1],
+                "cvid_user_template": new_record[2],
+                "skill_name":  new_record[3]
+            }
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "message": "Habilidad agregada exitosamente",
+                "content": new_record
+            }
+        )
+
+    except Exception as err:
+        print(f"Error: {err}")  #depuracion
+        raise HTTPException(status_code=500, detail=f"Database error: {err}")
+    finally:
+        cursor.close()
+        connection.close()
+
+#actualiza las aptitudes del usuario
+@router.put("/update-user-skills")
+def update_user_skills(user_skills: UserSkills):
+    connection = get_database_connection()  #obtener la conexion a la base de datos
+    cursor = connection.cursor()  #obtener el cursor
+
+    try:
+        #consultar si el registro existe
+        select_query = "SELECT * FROM user_skills WHERE id = %s"
+        cursor.execute(select_query, (user_skills.id,)) #ejecuta la consulta
+        existing_record = cursor.fetchone() #selecciona el registro
+
+        if not existing_record:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Registro no encontrado")
+
+        #actualizar datos en la tabla UserSkills
+        update_query = """
+            UPDATE user_skills
+            SET 
+                user_id = %s,
+                cvid_user_template = %s,
+                skill_name = %s
+            WHERE id = %s
+        """
+        cursor.execute(update_query, (
+            user_skills.user_id,
+            user_skills.cvid_user_template,
+            user_skills.skill,
+            user_skills.id  #id del registro a actualizar
+        ))
+        connection.commit() #ejecuta la actualizacion
+
+        #consultar el registro actualizado
+        select_query = "SELECT * FROM user_skills WHERE id = %s"
+        cursor.execute(select_query, (user_skills.id,)) #ejecuta la consulta
+        updated_record = cursor.fetchone() #selecciona el registro
+
+        #convertir el registro a un formato adecuado para la respuesta JSON
+        if updated_record:
+            updated_record = {
+                "id": updated_record[0],
+                "user_id": updated_record[1],
+                "cvid_user_template": updated_record[2],
+                "skill_name": updated_record[3]
+            }
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "message": "Habilidad actualizada exitosamente",
+                "content": updated_record
+            }
+        )
+
+    except Exception as err:
+        print(f"Error: {err}")  #depuracion
+        raise HTTPException(status_code=500, detail=f"Database error: {err}")
+    finally:
+        cursor.close()
+        connection.close()
+
+#eliminar las aptitu del usuario
+@router.delete("/delete-user-skills/{id}")
+def delete_user_skills(id: int):
+    connection = get_database_connection()  #obtener la conexion a la base de datos
+    cursor = connection.cursor()  #obtener el cursor
+
+    try:
+        #consultar si el registro existe
+        select_query = "SELECT * FROM user_skills WHERE id = %s"
+        cursor.execute(select_query, (id,)) #jeecuta la consulta como una tupla
+        existing_record = cursor.fetchone() #selecciona el registro
+
+        if not existing_record:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Registro no encontrado")
+
+        #eliminar el registro de la tabla UserSkills
+        delete_query = "DELETE FROM user_skills WHERE id = %s"
+        cursor.execute(delete_query, (id,)) #ejecuta la consulta
+        connection.commit()
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "message": "Habilidades eliminadas exitosamente"
+            }
+        )
+
+    except Exception as err:
+        print(f"Error: {err}")  #depuracion
         raise HTTPException(status_code=500, detail=f"Database error: {err}")
     finally:
         cursor.close()

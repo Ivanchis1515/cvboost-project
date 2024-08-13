@@ -56,3 +56,10 @@ class UserWorkExperienceCreate(BaseModel):
     workEndDate: Optional[date] = None 
     currentlyWorking: Optional[int]
     Workactivities: Optional[List[str]]  #array de actividades
+
+#modelo para guardar aptitudes
+class UserSkills(BaseModel):
+    id: Optional[int] = None #id del registro a actualizar
+    user_id: Optional[int]
+    cvid_user_template: Optional[int]
+    skill: Optional[str]

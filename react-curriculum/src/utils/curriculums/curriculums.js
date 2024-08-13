@@ -105,8 +105,28 @@ export const actualizarExperiencia = async(data) =>{
     return response;
 }
 
+//elimina la experiencia seleccionada
 export const eliminarExperiencia = async(id) => {
     const url = "/cv/delete-work-experience/";
     const response = await axiosInstance.delete(url + id);
     return response;
+}
+
+//guarda las competencias
+export const guardarCompetencia = async(data) => {
+    const url = "/cv/user-skills";
+    const response = await axiosInstance.post(url, data);
+    return response;
+}
+
+export const actualizarCompetencia = async(data) => {
+    const url = "/cv/update-user-skills"
+    const response = await axiosInstance.put(url, data)
+    return response;
+}
+
+export const eliminarCompetencia = async(id) => {
+    const url = "/cv/delete-user-skills/";
+    const response = await axiosInstance.delete(url + id);
+    return response
 }

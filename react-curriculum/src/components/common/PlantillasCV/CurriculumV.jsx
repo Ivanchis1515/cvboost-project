@@ -1,6 +1,9 @@
 //impportaciones de react
 import React, { useState } from 'react'
 
+//commons
+import Slider from '../Slider';
+
 //recursos
 import User from '../../../assets/img/user.svg';
 
@@ -33,7 +36,9 @@ const CurriculumV = ({
     workEndDate,
     currentlyWorking,
     Workactivities,
-    workRecords
+    workRecords,
+    skills, //aptitudes
+    skillsRecords
 }) => {
     const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 }); //mover y guardar la posicion de la imagen
     //funcion para determinar si el color es claro
@@ -81,7 +86,7 @@ const CurriculumV = ({
                                     className="img-fluid position-absolute"
                                     alt="Foto de perfil"
                                     style={{
-                                        cursor: editable ? 'pointer' : 'default',
+
                                         top: `${imagePosition.y}px`,
                                         left: `${imagePosition.x}px`
                                     }}
@@ -99,20 +104,32 @@ const CurriculumV = ({
                                 <p>
                                     <i className="fas fa-envelope"></i> {getDisplayValue(email, "hola@sitioincreible.com")}
                                 </p>
-                                <p>
+                                {/* <p>
                                     <i className="fas fa-globe"></i> www.sitioincreible.com
-                                </p>
+                                </p> */}
                             </div>
                         </div>
 
                         <h5 className="text-center" style={{ color: textColor }}>Aptitudes</h5>
                         <ul style={{ color: textColor }}>
-                            <li>Liderazgo</li>
-                            <li>Comunicación asertiva</li>
-                            <li>Gestión de activos</li>
-                            <li>Resolución de problemas</li>
-                            <li>Elaboración de reportes</li>
-                            <li>Trabajo en equipo</li>
+                            {skills && skills.length > 0 ? (
+                                skills.map((skill, index) => (
+                                    <li key={index}>
+                                        {getDisplayValue(skill.name, "liderazgo")}
+                                    </li>
+                                ))
+                            ) : (
+                                <li></li>
+                            )}
+                            {skillsRecords && skillsRecords.length > 0 ? (
+                                skillsRecords.map((record, index) => (
+                                    <li key={index}>
+                                        {getDisplayValue(record.skill_name, "liderazgo")}
+                                    </li>
+                                ))
+                            ) : (
+                                <li></li>
+                            )}
                         </ul>
                     </div>
 

@@ -16,15 +16,15 @@ import Footer from '../../../components/layout/Footer';
 
 //commons
 import ColorPicker from '../../../components/common/ColorPicker';
+import Slider from '../../../components/common/Slider';
 import { showErrorToast, showInfoToast, showSuccessToast } from '../../../components/common/SweetAlert2';
 //configuracion de plantillas
 import { templates } from '../../../utils/plantillasConfig';
 
 //helpers
-import { actualizarExperiencia, eliminarExperiencia, guardarExperiencia } from '../../../utils/curriculums/curriculums';
+import { actualizarCompetencia, eliminarCompetencia, guardarCompetencia } from '../../../utils/curriculums/curriculums';
 
-const WorkhistoryCV = () => {
-    const navigate = useNavigate();
+const SkillsCV = () => {
     //variables globales para el contexto (retoma la plantilla y el color elegidos) anteriormente
     const { userData, selectedTemplate, selectedColor, setSelectedTemplate, setSelectedColor } = useContext(curriculumContext);
     //obten el id del cv modificado actualmente
@@ -43,173 +43,124 @@ const WorkhistoryCV = () => {
     const [isLoading, setIsLoading] = useState(true); //carga del preloader 
     //formdata formulario
     const [formData, setFormData] = useState({
-        position: '',
-        company: '',
-        workCity: '',
-        workMunicipality: '',
-        workStartDate: '',
-        workEndDate: '',
-        currentlyWorking: false,
-        Workactivities: [''] // lista inicial con un campo vacio
+        skills: [{ name: '' }] //Lista inicial con un campo vacio y un valor de slider por defecto
     });
 
-    //cambio en el formdata
-    const handleChange = (e) => {
-        const { id, value, type, checked } = e.target;
-        setFormData(prevState => ({
-            ...prevState,
-            [id]: type === 'checkbox' ? checked : value
-        }));
-    };
-
-    const [workRecords, setworkRecords] = useState([]); //array de elementos extraidos
+    const [skillRecords, setSkillRecords] = useState([]); //array de elementos extraidos
     const [editId, setEditId] = useState(null); //id seleccionado
     const [completedSections, setCompletedSections] = useState([]); //secciones completadas
     const [userDataFromSections, setUserDataFromSections] = useState({}); //datos de las secciones
 
     const handleSubmit = (e) => {
-        //verifica si todos los campos del formulario estan vacios, incluyendo las actividades
-        const hasFormData = Object.values(formData).some(value => {
-            if (Array.isArray(value)) {
-                return value.some(activity => activity !== '');
-            }
-            return value !== '' && value !== false;
-        });
-
+        const hasFormData = Object.values(formData).some(value => value !== '' && value !== false); //verifica si el formulario tiene datos
         if (hasFormData) {
-            showInfoToast('Por favor, guarde sus datos para avanzar a la siguiente sección');
+            showInfoToast('Por favor, incluye tus datos para llegar a la siguiente sección');
             return; //no enviar datos si el formulario esta vacio
         }
         e.preventDefault();
 
-        //vavegar a la siguiente seccion
-        navigate('/create-csv/section/skills');
+        // Navegar a la siguiente seccion
+        // navigate('/create-csv/section/workhistory');
     };
 
     //funcion para agregar registro
     const handleAddRecord = async () => {
-        //verifica si todos los campos del formulario estan vacios, incluyendo las actividades
-        const hasFormData = Object.values(formData).some(value => {
-            if (Array.isArray(value)) {
-                return value.some(activity => activity !== '');
-            }
-            return value !== '' && value !== false;
-        });
-
-        if (!hasFormData) {
-            showInfoToast('Por favor, completa los campos del formulario para agregar su referencia laboral.');
-            return; //no enviar datos si el formulario esta vacio
+        const hasFormData = formData.skills.length === 0 || formData.skills.every(skill => !skill.name.trim())
+        // Verifica si hay habilidades para enviar
+        if (hasFormData) {
+            showInfoToast('Por favor, añade al menos una habilidad.');
+            return;
         }
 
         try {
-            const dataToSubmit = {
-                cvid_user_template: idcv_usertemplate,
-                user_id: userData?.id,
-                ...formData,
-                currentlyWorking: formData.currentlyWorking ? 1 : 0,  //conversion a tinyint
-                workEndDate: formData.currentlyWorking ? null : formData.workEndDate,
-            };
-
-            //envia los datos al endpoint
-            const response = await guardarExperiencia(dataToSubmit);
-            if (response.status === 200 && response.data.content) {
-                //agregar el nuevo registro al estado
-                setworkRecords(prevRecords => [response.data.content, ...prevRecords]);
-                //limpiar el formulario después de enviar los datos
-                setFormData({
-                    position: '',
-                    company: '',
-                    workCity: '',
-                    workMunicipality: '',
-                    workStartDate: '',
-                    workEndDate: '',
-                    currentlyWorking: false,
-                    Workactivities: [''] // lista inicial con un campo vacio
-                });
-                showSuccessToast(response.data.message);
-            } else {
-                showErrorToast('Error en la respuesta del servidor.');
+            //para cada habilidad dentro del form
+            for (const skill of formData.skills) {
+                //prepara los datos a enviar
+                const dataToSubmit = {
+                    user_id: userData?.id,
+                    cvid_user_template: idcv_usertemplate,
+                    skill: skill.name
+                };
+        
+                //envia los datos al endpoint
+                const response = await guardarCompetencia(dataToSubmit);
+                if (response.status === 200) {
+                    setSkillRecords(prevRecords => [...prevRecords, response.data.content]);
+                    // Limpiar el formulario después de agregar todas las habilidades
+                    setFormData({ skills: [{ name: "" }] });
+                    showSuccessToast(response.data.message);
+                } else {
+                    showErrorToast(response.status);
+                    return;
+                }
             }
+        
         } catch (error) {
-            showErrorToast('Error al agregar el registro');
+            showErrorToast('Error al agregar las habilidades', error.message);
         }
     };
 
     //funcion para actualizar registro existente
     const handleUpdate = async () => {
         try {
-            //prepara los datos a enviar para la actualizacion
-            const dataToSubmit = {
-                id: editId, //identificador del registro a actualizar
-                user_id: userData?.id,
-                cvid_user_template: idcv_usertemplate,
-                ...formData,
-                currentlyWorking: formData.currentlyWorking ? 1 : 0, //conversion a tinyint
-                workEndDate: formData.currentlyWorking ? null : formData.workEndDate,
-            };
-
-            //envia los datos al endpoint de actualizacion
-            const response = await actualizarExperiencia(dataToSubmit);
-
-            //maneja la respuesta
-            if (response.status === 200 && response.data.content) {
-                //actualiza el registro especifico en el estado
-                setworkRecords(prevRecords =>
-                    prevRecords.map(record =>
-                        //recorre los registros hasta encontrarlo
-                        record.id === editId ? response.data.content : record
-                    )
-                );
-                //limpia el formulario y el ID de edicion
-                setFormData({
-                    position: '',
-                    company: '',
-                    workCity: '',
-                    workMunicipality: '',
-                    workStartDate: '',
-                    workEndDate: '',
-                    currentlyWorking: false,
-                    Workactivities: [''] // lista inicial con un campo vacio
-                });
-                setEditId(null);
-                showSuccessToast(response.data.message) //muestra el mensaje del servidor
-            } else{
-                showErrorToast(response.status)
+            for(const skill of formData.skills){
+                //prepara los datos a enviar para la actualizacion
+                const dataToSubmit = {
+                    id: editId, //identificador del registro a actualizar
+                    user_id: userData?.id,
+                    cvid_user_template: idcv_usertemplate,
+                    skill: skill.name
+                };
+    
+                //envia los datos al endpoint de actualizacion
+                const response = await actualizarCompetencia(dataToSubmit);
+                //maneja la respuesta
+                if (response.status === 200) {
+                    //actualiza el registro especifico en el estado
+                    setSkillRecords(prevRecords =>
+                        prevRecords.map(record =>
+                            //recorre los registros hasta encontrarlo
+                            record.id === editId ? { ...record, skill_name: skill.name } : record
+                        )
+                    );
+                    //limpia el formulario y el ID de edicion
+                    setFormData({ skills: [{ name: "" }] });
+                    setEditId(null); //limpia el id
+                    showSuccessToast(response.data.message) //muestra el mensaje del servidor
+                } else {
+                    showErrorToast(response.status)
+                }
+            }
+            //mostrar nuevamente el botón Añadir aptitud
+            const addSkillButton = document.getElementById('addSkillButton');
+            if (addSkillButton) {
+                addSkillButton.style.display = 'inline-block';
             }
         } catch (error) {
             showErrorToast('Error al actualizar el registro:' + error.message);
         }
     };
 
-    const handleDelete = async(id) => {
+    const handleDelete = async (id) => {
         try {
             //confirmar la eliminacion con el usuario
             const confirmDelete = window.confirm("¿Estas seguro de que deseas eliminar este registro?");
             if (!confirmDelete) return;
-    
+
             //enviar la solicitud de eliminacion al endpoint
-            const response = await eliminarExperiencia(id);
-    
+            const response = await eliminarCompetencia(id);
+
             //verificar la respuesta
             if (response.status === 200) {
                 //eliminar el registro del estado
-                setworkRecords(prevRecords =>
+                setSkillRecords(prevRecords =>
                     //filtra hasta encontrar el registro
                     prevRecords.filter(record => record.id !== id)
                 );
                 //limpia el formulario y el ID de edicion
-                setFormData({
-                    position: '',
-                    company: '',
-                    workCity: '',
-                    workMunicipality: '',
-                    workStartDate: '',
-                    workEndDate: '',
-                    currentlyWorking: false,
-                    Workactivities: [''] // lista inicial con un campo vacio
-                });
+                setFormData({ skills: [{ name: "" }] });
+                setEditId(null); //limpia el id
                 showSuccessToast(response.data.message);
-                setEditId(null);
             } else {
                 showInfoToast('Error al eliminar el registro', response.status);
             }
@@ -255,7 +206,7 @@ const WorkhistoryCV = () => {
             {/* Navbar */}
 
             {/* <!-- Main Sidebar Container --> */}
-            <AsideBarOr completedSections={completedSections} activeSection="workhistory" userData={userData} />
+            <AsideBarOr completedSections={completedSections} activeSection="skills" userData={userData} />
             {/* ./main sidebar */}
 
             {/* Content wrapper */}
@@ -263,13 +214,14 @@ const WorkhistoryCV = () => {
                 {/* Page header */}
                 <PageHeader
                     title="Curriculum vitae >"
-                    subtitle="Experiencia laboral"
+                    subtitle="Aptitudes"
                     breadcrumbs={[
                         { label: "Inicio", href: "/" },
                         { label: "Plantillas", href: "/create-csv/select-template" },
                         { label: "Encabezado CV", href: "/create-csv/section/headerCV" },
                         { label: "Estudios CV", href: "/create-csv/section/studies" },
-                        { label: "Experiencia laboral", active: true }
+                        { label: "Experiencia laboral", href: "/create-csv/section/workhistory" },
+                        { label: "Aptitudes CV", active: true }
                     ]}
                 />
                 {/* ./Page header */}
@@ -355,7 +307,7 @@ const WorkhistoryCV = () => {
                                 <button type="button" className="close" data-dismiss="alert" aria-hidden="true">×</button>
                                 <h5><i className="icon fas fa-info" /> Atención!</h5>
                                 <p style={{ fontSize: '0.9rem' }}>
-                                    Los reclutadores ojean el CV durante seis segundos para decidir tu idoneidad. Te sugeriremos propongas tus actividades que te hicieron destacar en el puesto.
+                                    Detalla tus áreas de especialidad enfocándote en tus competencias más relevantes.
                                 </p>
                             </div>
                             {/* ./alert */}
@@ -364,130 +316,39 @@ const WorkhistoryCV = () => {
                             <div className="col-md-7">
                                 <div className="card card-success">
                                     <div className="card-header">
-                                        <h3 className="card-title">Cuentanos sobre tu experiencia trabajando</h3>
+                                        <h3 className="card-title">Cuentanos tus Competencias</h3>
                                     </div>
                                     <div className="card-body">
                                         <div className="row">
                                             <div className="card-body">
                                                 <div className="row">
-                                                    <p className="">Comienza con el trabajo más reciente y continúa en orden regresivo.</p>
-                                                    <div className="col-md-6">
-                                                        <div className="form-group">
-                                                            <label htmlFor="position">Cargo:</label>
-                                                            <input
-                                                                type="text"
-                                                                id="position"
-                                                                className="form-control"
-                                                                placeholder="Nombre del cargo"
-                                                                value={formData.position || ''}
-                                                                onChange={handleChange}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-md-6">
-                                                        <div className="form-group">
-                                                            <label htmlFor="company">Empresa:</label>
-                                                            <input
-                                                                type="text"
-                                                                id="company"
-                                                                className="form-control"
-                                                                placeholder="Nombre de la empresa"
-                                                                value={formData.company || ''}
-                                                                onChange={handleChange}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-md-6">
-                                                        <div className="form-group">
-                                                            <label htmlFor="city">Ciudad localidad:</label>
-                                                            <input
-                                                                type="text"
-                                                                id="workCity"
-                                                                className="form-control"
-                                                                placeholder="Ciudad localidad"
-                                                                value={formData.workCity || ''}
-                                                                onChange={handleChange}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-md-6">
-                                                        <div className="form-group">
-                                                            <label htmlFor="municipality">Alcaldía/municipio:</label>
-                                                            <input
-                                                                type="text"
-                                                                id="workMunicipality"
-                                                                className="form-control"
-                                                                placeholder="Alcaldía/municipio"
-                                                                value={formData.workMunicipality || ''}
-                                                                onChange={handleChange}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-md-6">
-                                                        <div className="form-group">
-                                                            <label htmlFor="startDate">Fecha de inicio</label>
-                                                            <input
-                                                                type="date"
-                                                                id="workStartDate"
-                                                                className="form-control"
-                                                                value={formData.workStartDate || ''}
-                                                                onChange={handleChange}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-md-6">
-                                                        <div className="form-group">
-                                                            <label htmlFor="endDate">Fecha de finalización</label>
-                                                            <input
-                                                                type="date"
-                                                                id="workEndDate"
-                                                                className="form-control"
-                                                                value={formData.currentlyWorking ? '' : formData.workEndDate || ''}
-                                                                onChange={handleChange}
-                                                                disabled={formData.currentlyWorking}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-md-12 text-right">
-                                                        <div className="form-check">
-                                                            <input
-                                                                type="checkbox"
-                                                                id="currentlyWorking"
-                                                                className="form-check-input"
-                                                                checked={formData.currentlyWorking}
-                                                                onChange={handleChange}
-                                                            />
-                                                            <label htmlFor="currentlyWorking" className="form-check-label">
-                                                                Actualmente sigo trabajando aquí
-                                                            </label>
-                                                        </div>
-                                                    </div>
+                                                    <p className="">
+                                                        Añade de 4 a 8 competencias pertinentes de tus trabajos previos.
+                                                        Te sugerimos coloques palabras que describieron tus habilidades en tu trabajo.
+                                                    </p>
                                                     <div className="form-group">
-                                                        <label htmlFor="Workactivities">Actividades:</label>
-                                                        {formData.Workactivities.map((activity, index) => (
-                                                            <div key={index} className="input-group mb-2">
-                                                                <input
-                                                                    type="text"
-                                                                    className="form-control"
-                                                                    placeholder="Descripción de actividad"
-                                                                    value={activity}
-                                                                    onChange={(e) => {
-                                                                        const newActivities = [...formData.Workactivities];
-                                                                        newActivities[index] = e.target.value;
-                                                                        setFormData(prevData => ({
-                                                                            ...prevData,
-                                                                            Workactivities: newActivities
-                                                                        }));
-                                                                    }}
-                                                                />
-                                                                <div className="input-group-append">
+                                                        {formData.skills.map((skill, index) => (
+                                                            <div key={index} className="row mb-3">
+                                                                <div className="col-sm-10">
+                                                                    <input
+                                                                        type="text"
+                                                                        className="form-control"
+                                                                        placeholder="Descripción de aptitud"
+                                                                        value={skill.name}
+                                                                        onChange={(e) => {
+                                                                            const newSkills = [...formData.skills];
+                                                                            newSkills[index].name = e.target.value;
+                                                                            setFormData({ skills: newSkills });
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                                <div className="col-sm-2 mt-2">
                                                                     <button
                                                                         className="btn btn-danger"
                                                                         type="button"
                                                                         onClick={() => {
-                                                                            setFormData(prevData => ({
-                                                                                ...prevData,
-                                                                                Workactivities: prevData.Workactivities.filter((_, i) => i !== index)
+                                                                            setFormData((prevData) => ({
+                                                                                skills: prevData.skills.filter((_, i) => i !== index),
                                                                             }));
                                                                         }}
                                                                     >
@@ -499,14 +360,14 @@ const WorkhistoryCV = () => {
                                                         <button
                                                             className="btn btn-primary"
                                                             type="button"
+                                                            id="addSkillButton"
                                                             onClick={() => {
-                                                                setFormData(prevData => ({
-                                                                    ...prevData,
-                                                                    Workactivities: [...prevData.Workactivities, '']
+                                                                setFormData((prevData) => ({
+                                                                    skills: [...prevData.skills, { name: "" }],
                                                                 }));
                                                             }}
                                                         >
-                                                            Añadir actividad
+                                                            Añadir aptitud
                                                         </button>
                                                     </div>
                                                 </div>
@@ -523,21 +384,21 @@ const WorkhistoryCV = () => {
                                             </button>
                                         ) : (
                                             <button className="btn btn-primary float-right mr-2" onClick={handleAddRecord}>
-                                                Agregar otra referencia laboral
+                                                Agregar Aptitudes
                                             </button>
                                         )}
-                                        <Link to="/create-csv/section/studies" className="btn btn-secondary justify-content-between">
+                                        <Link to="/create-csv/section/workhistory" className="btn btn-secondary justify-content-between">
                                             Regresar
                                         </Link>
                                     </div>
                                 </div>
                                 {/* Renderizar tarjetas expandibles */}
-                                {workRecords.map((record, index) => (
+                                {skillRecords.map((record, index) => (
                                     record ? (
                                         <div className="card card-success collapsed-card" key={index}>
                                             <div className="card-header">
                                                 <h3 className="card-title">
-                                                    {record.position || 'No disponible'}: {record.work_start_date || 'Fecha de inicio no disponible'} - {record.work_end_date || (record.currently_working ? 'Actual' : 'No disponible')}
+                                                    {record.skill_name || 'No disponible'}
                                                 </h3>
                                                 <div className="card-tools">
                                                     <button type="button" className="btn btn-tool" onClick={() => handleDelete(record.id)}>
@@ -549,43 +410,24 @@ const WorkhistoryCV = () => {
                                                         onClick={() => {
                                                             //actualiza los valores del formdata con los del record
                                                             setFormData({
-                                                                position: record.position || '',
-                                                                company: record.company || '',
-                                                                workCity: record.work_city || '',
-                                                                workMunicipality: record.work_municipality || '',
-                                                                workStartDate: record.work_start_date || '',
-                                                                workEndDate: record.work_end_date || '',
-                                                                currentlyWorking: record.currently_working == 1,
-                                                                Workactivities: record.activities || [''] // lista inicial con un campo vacio
+                                                                skills: [{name:record.skill_name}] || [{ name: "" }],
                                                             });
                                                             setEditId(record.id); //guardar el id del registro para actualizarlo
+                                                            //oculta el botón "Añadir aptitud"
+                                                            const addSkillButton = document.getElementById('addSkillButton'); //ubica el boton
+                                                            if (addSkillButton) {
+                                                                addSkillButton.style.display = 'none'; //desaparecelo
+                                                            }
                                                         }}
                                                     >
                                                         <i className="fas fa-edit"></i>
                                                     </button>
-                                                    <button type="button" className="btn btn-tool" data-card-widget="collapse">
+                                                    {/* <button type="button" className="btn btn-tool" data-card-widget="collapse">
                                                         <i className="fas fa-plus"></i>
-                                                    </button>
+                                                    </button> */}
                                                 </div>
                                             </div>
                                             <div className="card-body">
-                                                <p>Empresa: {record.company || 'Sin nombre'}</p>
-                                                <p>Ciudad: {record.work_city || 'No disponible'}</p>
-                                                <p>Municipio/alcaldia: {record.work_municipality || 'No disponible'}</p>
-                                                <p>Fecha de inicio: {record.work_start_date || 'No disponible'}</p>
-                                                <p>Fecha de finalización: {record.work_end_date || (record.currently_working ? 'Actualmente' : 'No disponible')}</p>
-                                                <p>
-                                                    Actividades realizadas
-                                                </p>
-                                                <ul>
-                                                    {record.activities && record.activities.length > 0 ? (
-                                                        record.activities.map((activity, activityIndex) => (
-                                                            <li key={activityIndex}>{activity}</li>
-                                                        ))
-                                                    ) : (
-                                                        <li>No hay actividades disponibles</li>
-                                                    )}
-                                                </ul>
                                             </div>
                                         </div>
                                     ) : null
@@ -610,7 +452,7 @@ const WorkhistoryCV = () => {
                                                     editable={true}
                                                     {...userDataFromSections} //pasar todos los datos como propiedades
                                                     {...formData}
-                                                    workRecords={workRecords}
+                                                    skillsRecords={skillRecords}
                                                 />
                                             ) : (
                                                 <p>No se ha seleccionado ninguna plantilla.</p>
@@ -636,4 +478,4 @@ const WorkhistoryCV = () => {
     )
 }
 
-export default WorkhistoryCV
+export default SkillsCV
