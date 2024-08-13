@@ -4,6 +4,7 @@ import { checkAcceptance, acceptTerms, userDatainfo } from "../../src/utils/user
 
 describe('Pruebas sobre las funciones de Usuarios', () => {
 
+    //Se tendran que cambiar los datos cada vez que se ejecute
     // test('Evaluando función que registra un usuario', async () => {
     //     const correo = 'DavidG@gmail.com';
     //     const contra = 'DavidGz23#';
@@ -16,13 +17,15 @@ describe('Pruebas sobre las funciones de Usuarios', () => {
     //     expect(mensaje).toEqual(respuesta);
     // });
 
-    test('Evaluando función que valida si un usuario por ID acepto terminos', async () => {
-        const correo = 'DavidG@gmail.com';
-        const contra = 'DavidGz23#';
-        const usuario = await loginUser(correo,contra);
-        const respuesta = true
-        //console.log(usuario);
-        expect(usuario).toEqual(respuesta);
+    test('Evaluando función que valida el inicio de sesion de un usuario', async () => {
+        const correo = 'jals250808@gmail.com';
+        const contra = 'Manchass27#';
+        const usuario = (await loginUser(correo,contra)).data;
+        //Acceder a la propiedad 'msg'
+        const mensaje = usuario.msg;
+        const respuesta = "Inicio de sesión exitoso"
+        //console.log(mensaje);
+        expect(mensaje).toEqual(respuesta);
     });
 
     test('Evaluando función que valida si un usuario por ID acepto terminos', async () => {
