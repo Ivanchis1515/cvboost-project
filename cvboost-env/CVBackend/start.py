@@ -1,7 +1,7 @@
 #archivo de arranque
 #uvicorn
 import uvicorn #uvicorn
-from server_config import get_uvicorn_config #configuracion del servidor
+from CVBackend.server_config import get_uvicorn_config #configuracion del servidor
 
 if __name__ == "__main__":
     config = get_uvicorn_config()

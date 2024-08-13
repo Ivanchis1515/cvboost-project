@@ -100,7 +100,6 @@ const StudiesCV = () => {
 
             //envia los datos al endpoint
             const response = await guardareducacion(dataToSubmit);
-            console.log(response)
             if (response.status === 200 && response.data.content) {
                 //agregar el nuevo registro al estado
                 setEducationRecords(prevRecords => [response.data.content, ...prevRecords]);

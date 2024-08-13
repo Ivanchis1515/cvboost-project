@@ -90,3 +90,10 @@ export const eliminarEducacion = async(id) => {
     const response = await axiosInstance.delete(url + id)
     return response;
 }
+
+//agrega experiencia laboral
+export const guardarExperiencia = async(data) => {
+    const url = "/cv/userwork-experience";
+    const response = await axiosInstance.post(url, data);
+    return response
+}

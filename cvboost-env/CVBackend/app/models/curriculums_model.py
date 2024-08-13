@@ -42,3 +42,17 @@ class UserEducationCreate(BaseModel):
     startDate: Optional[date]
     endDate: Optional[date] = None
     currentlyStudying: Optional[int]
+
+#modelo para guardar la experiencia del usuario
+class UserWorkExperienceCreate(BaseModel):
+    id: Optional[int] = None #id del registro a actualizar
+    user_id: Optional[int] 
+    cvid_user_template: Optional[int]
+    position: Optional[str]
+    company: Optional[str]
+    workCity: Optional[str]
+    workMunicipality: Optional[str]
+    workStartDate: Optional[date]  #formato YYYY-MM-DD
+    workEndDate: Optional[date] = None 
+    currentlyWorking: Optional[int]
+    Workactivities: Optional[List[str]]  #array de actividades

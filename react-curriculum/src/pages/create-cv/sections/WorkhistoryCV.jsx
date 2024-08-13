@@ -20,9 +20,14 @@ import { showErrorToast, showInfoToast, showSuccessToast } from '../../../compon
 //configuracion de plantillas
 import { templates } from '../../../utils/plantillasConfig';
 
+//helpers
+import { guardarExperiencia } from '../../../utils/curriculums/curriculums';
+
 const WorkhistoryCV = () => {
     //variables globales para el contexto (retoma la plantilla y el color elegidos) anteriormente
     const { userData, selectedTemplate, selectedColor, setSelectedTemplate, setSelectedColor } = useContext(curriculumContext);
+    //obten el id del cv modificado actualmente
+    const idcv_usertemplate = localStorage.getItem("cv_id");
 
     const [TemplateComponent, setTemplateComponent] = useState(null); //componente de la plantilla
     const [color, setColor] = useState(selectedColor);//color de la plantilla
@@ -34,18 +39,17 @@ const WorkhistoryCV = () => {
     };
     //filtra las plantillas exluyendo la que fue seleccionada
     const filteredTemplates = Object.keys(templates).filter(templateName => templateName !== selectedTemplate);
-
-    const [isLoading, setIsLoading] = useState(true); //carga del preloader
+    const [isLoading, setIsLoading] = useState(true); //carga del preloader 
     //formdata formulario
     const [formData, setFormData] = useState({
         position: '',
         company: '',
-        city: '',
-        municipality: '',
-        startDate: '',
-        endDate: '',
+        workCity: '',
+        workMunicipality: '',
+        workStartDate: '',
+        workEndDate: '',
         currentlyWorking: false,
-        activities: [''] // Lista inicial con un campo vacío
+        Workactivities: [''] // lista inicial con un campo vacio
     });
 
     //cambio en el formdata
@@ -59,9 +63,49 @@ const WorkhistoryCV = () => {
 
     const [workRecords, setworkRecords] = useState([]); //array de elementos extraidos
     const [editId, setEditId] = useState(null); //id seleccionado
-
     const [completedSections, setCompletedSections] = useState([]); //secciones completadas
     const [userDataFromSections, setUserDataFromSections] = useState({}); //datos de las secciones
+
+    const handleAddRecord = async () => {
+        const hasFormData = Object.values(formData).some(value => value !== '' && value !== false); //verifica si el formulario tiene datos
+        if (!hasFormData) {
+            showInfoToast('Por favor, completa los campos del formulario para agregar un campo de estudio.');
+            return; //no enviar datos si el formulario esta vacio
+        }
+
+        try {
+            const dataToSubmit = {
+                cvid_user_template: idcv_usertemplate,
+                user_id: userData?.id,
+                ...formData,
+                currentlyWorking: formData.currentlyWorking ? 1 : 0,  //conversion a tinyint
+                workEndDate: formData.currentlyWorking ? null : formData.workEndDate,
+            };
+
+            //envia los datos al endpoint
+            const response = await guardarExperiencia(dataToSubmit);
+            if (response.status === 200 && response.data.content) {
+                //agregar el nuevo registro al estado
+                setworkRecords(prevRecords => [response.data.content, ...prevRecords]);
+                //limpiar el formulario después de enviar los datos
+                setFormData({
+                    position: '',
+                    company: '',
+                    workCity: '',
+                    workMunicipality: '',
+                    workStartDate: '',
+                    workEndDate: '',
+                    currentlyWorking: false,
+                    Workactivities: [''] // lista inicial con un campo vacio
+                });
+                showSuccessToast(response.data.message);
+            } else {
+                showErrorToast('Error en la respuesta del servidor.');
+            }
+        } catch (error) {
+            showErrorToast('Error al agregar el registro');
+        }
+    };
 
     //funcion para cambiar de plantilla
     const handleChangeTemplate = (templateName) => {
@@ -92,7 +136,7 @@ const WorkhistoryCV = () => {
     return (
         <div className="layout-top-nav layout-navbar-fixed layout-footer-fixed sidebar-collapse sidebar-mini">
             {/* Preloader */}
-            {/* {isLoading && <Preloader setIsLoading={setIsLoading} />} */}
+            {isLoading && <Preloader setIsLoading={setIsLoading} />}
             {/* Preloader */}
 
             {/* Navbar */}
@@ -246,10 +290,10 @@ const WorkhistoryCV = () => {
                                                             <label htmlFor="city">Ciudad localidad:</label>
                                                             <input
                                                                 type="text"
-                                                                id="city"
+                                                                id="workCity"
                                                                 className="form-control"
                                                                 placeholder="Ciudad localidad"
-                                                                value={formData.city || ''}
+                                                                value={formData.workCity || ''}
                                                                 onChange={handleChange}
                                                             />
                                                         </div>
@@ -259,10 +303,10 @@ const WorkhistoryCV = () => {
                                                             <label htmlFor="municipality">Alcaldía/municipio:</label>
                                                             <input
                                                                 type="text"
-                                                                id="municipality"
+                                                                id="workMunicipality"
                                                                 className="form-control"
                                                                 placeholder="Alcaldía/municipio"
-                                                                value={formData.municipality || ''}
+                                                                value={formData.workMunicipality || ''}
                                                                 onChange={handleChange}
                                                             />
                                                         </div>
@@ -272,9 +316,9 @@ const WorkhistoryCV = () => {
                                                             <label htmlFor="startDate">Fecha de inicio</label>
                                                             <input
                                                                 type="date"
-                                                                id="startDate"
+                                                                id="workStartDate"
                                                                 className="form-control"
-                                                                value={formData.startDate || ''}
+                                                                value={formData.workStartDate || ''}
                                                                 onChange={handleChange}
                                                             />
                                                         </div>
@@ -284,9 +328,9 @@ const WorkhistoryCV = () => {
                                                             <label htmlFor="endDate">Fecha de finalización</label>
                                                             <input
                                                                 type="date"
-                                                                id="endDate"
+                                                                id="workEndDate"
                                                                 className="form-control"
-                                                                value={formData.currentlyWorking ? '' : formData.endDate || ''}
+                                                                value={formData.currentlyWorking ? '' : formData.workEndDate || ''}
                                                                 onChange={handleChange}
                                                                 disabled={formData.currentlyWorking}
                                                             />
@@ -306,54 +350,52 @@ const WorkhistoryCV = () => {
                                                             </label>
                                                         </div>
                                                     </div>
-                                                    <div className="col-md-12">
-                                                        <div className="form-group">
-                                                            <label htmlFor="activities">Actividades:</label>
-                                                            {formData.activities.map((activity, index) => (
-                                                                <div key={index} className="input-group mb-2">
-                                                                    <input
-                                                                        type="text"
-                                                                        className="form-control"
-                                                                        placeholder="Descripción de actividad"
-                                                                        value={activity}
-                                                                        onChange={(e) => {
-                                                                            const newActivities = [...formData.activities];
-                                                                            newActivities[index] = e.target.value;
+                                                    <div className="form-group">
+                                                        <label htmlFor="Workactivities">Actividades:</label>
+                                                        {formData.Workactivities.map((activity, index) => (
+                                                            <div key={index} className="input-group mb-2">
+                                                                <input
+                                                                    type="text"
+                                                                    className="form-control"
+                                                                    placeholder="Descripción de actividad"
+                                                                    value={activity}
+                                                                    onChange={(e) => {
+                                                                        const newActivities = [...formData.Workactivities];
+                                                                        newActivities[index] = e.target.value;
+                                                                        setFormData(prevData => ({
+                                                                            ...prevData,
+                                                                            Workactivities: newActivities
+                                                                        }));
+                                                                    }}
+                                                                />
+                                                                <div className="input-group-append">
+                                                                    <button
+                                                                        className="btn btn-danger"
+                                                                        type="button"
+                                                                        onClick={() => {
                                                                             setFormData(prevData => ({
                                                                                 ...prevData,
-                                                                                activities: newActivities
+                                                                                Workactivities: prevData.Workactivities.filter((_, i) => i !== index)
                                                                             }));
                                                                         }}
-                                                                    />
-                                                                    <div className="input-group-append">
-                                                                        <button
-                                                                            className="btn btn-danger"
-                                                                            type="button"
-                                                                            onClick={() => {
-                                                                                setFormData(prevData => ({
-                                                                                    ...prevData,
-                                                                                    activities: prevData.activities.filter((_, i) => i !== index)
-                                                                                }));
-                                                                            }}
-                                                                        >
-                                                                            Eliminar
-                                                                        </button>
-                                                                    </div>
+                                                                    >
+                                                                        Eliminar
+                                                                    </button>
                                                                 </div>
-                                                            ))}
-                                                            <button
-                                                                className="btn btn-primary"
-                                                                type="button"
-                                                                onClick={() => {
-                                                                    setFormData(prevData => ({
-                                                                        ...prevData,
-                                                                        activities: [...prevData.activities, '']
-                                                                    }));
-                                                                }}
-                                                            >
-                                                                Añadir actividad
-                                                            </button>
-                                                        </div>
+                                                            </div>
+                                                        ))}
+                                                        <button
+                                                            className="btn btn-primary"
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setFormData(prevData => ({
+                                                                    ...prevData,
+                                                                    Workactivities: [...prevData.Workactivities, '']
+                                                                }));
+                                                            }}
+                                                        >
+                                                            Añadir actividad
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -368,7 +410,7 @@ const WorkhistoryCV = () => {
                                                 Actualizar
                                             </button>
                                         ) : (
-                                            <button className="btn btn-primary float-right mr-2">
+                                            <button className="btn btn-primary float-right mr-2" onClick={handleAddRecord}>
                                                 Agregar otro campo de estudio
                                             </button>
                                         )}

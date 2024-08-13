@@ -7,7 +7,7 @@ import User from '../../../assets/img/user.svg';
 const CurriculumV = ({
     color = "#17a2b8",
     editable = false,
-    name,
+    name, //datos personales
     surname,
     city,
     municipality,
@@ -17,16 +17,25 @@ const CurriculumV = ({
     phone,
     email,
     photo,
-    school,
+    school, //datos academicos
     citySchool,
     certification,
     fieldOfStudy,
     startDate,
     endDate,
     currentlyStudying,
-    educationRecords
+    educationRecords,
+    position, //datos laborales
+    company,
+    workCity,
+    workMunicipality,
+    workStartDate,
+    workEndDate,
+    currentlyWorking,
+    Workactivities,
+    workRecords
 }) => {
-    const [position, setPosition] = useState({ x: 0, y: 0 }); //mover y guardar la posicion de la imagen
+    const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 }); //mover y guardar la posicion de la imagen
     //funcion para determinar si el color es claro
     const isLightColor = (color) => {
         let r = parseInt(color.substr(1, 2), 16);
@@ -73,8 +82,8 @@ const CurriculumV = ({
                                     alt="Foto de perfil"
                                     style={{
                                         cursor: editable ? 'pointer' : 'default',
-                                        top: `${position.y}px`,
-                                        left: `${position.x}px`
+                                        top: `${imagePosition.y}px`,
+                                        left: `${imagePosition.x}px`
                                     }}
                                 />
                             </div>
@@ -141,7 +150,7 @@ const CurriculumV = ({
                                                 </div>
                                             ))
                                         ) : (
-                                            <p>No se han agregado registros de educación aún.</p>
+                                            <p></p>
                                         )}
                                     </div>
                                 </div>
@@ -154,19 +163,40 @@ const CurriculumV = ({
                                     <h3 className="timeline-header no-border" style={{ color: color }}>Historial Laboral</h3>
                                     <div className="timeline-body">
                                         <div className="mb-1">
-                                            <p className="h6"><strong>Área de contabilidad</strong> Celaya, Seúl</p>
-                                            <strong>Fecha:</strong> 2010-2012
+                                            <p className="h6"><strong>{getDisplayValue(company, "SuperSu")} - {getDisplayValue(position, "Área de contabilidad")}</strong> {getDisplayValue(workCity, "Celaya")}, {getDisplayValue(workMunicipality, "Seúl")}</p>
+                                            <strong>Fecha:</strong> {getDisplayValue(workStartDate, "2010")} - {currentlyWorking ? "Actualmente" : getDisplayValue(workEndDate, "2012")}
                                             <ul>
-                                                <li>Eu augue ut lectus arcu bibendum at varius vel pharetra vel turpis nunc eget lorem dolor sed viverra ipsum nunc.</li>
+                                                {Workactivities && Workactivities.length > 0 ? (
+                                                    Workactivities.map((activity, index) => (
+                                                        <li key={index}>{activity || 'Eu augue ut lectus arcu bibendum at varius vel pharetra vel turpis nunc eget lorem dolor sed viverra ipsum nunc.'}</li>
+                                                    ))
+                                                ) : (
+                                                    <li></li>
+                                                )}
                                             </ul>
                                         </div>
-                                        <div>
-                                            <p className="h6"><strong className="mr-1">Contador Supermercado</strong> Celaya, Ciudad</p>
-                                            <strong>Fecha:</strong> 2012-2014
-                                            <ul>
-                                                <li>Eu augue ut lectus arcu bibendum at varius vel pharetra vel turpis nunc eget lorem dolor sed viverra ipsum nunc.</li>
-                                            </ul>
-                                        </div>
+                                        {/* Mostrar los registros laborales guardados */}
+                                        {workRecords && workRecords.length > 0 ? (
+                                            workRecords.map((record, index) => (
+                                                <div key={index}>
+                                                    <p className="h6">
+                                                        <strong>{record.position}</strong> {record.company}, {record.city}, {record.municipality}
+                                                    </p>
+                                                    <strong>Fecha:</strong> {record.startDate} - {record.currentlyWorking ? "Actualmente trabajando aquí" : record.endDate}
+                                                    <ul>
+                                                        {record.activities && record.activities.length > 0 ? (
+                                                            record.activities.map((activity, idx) => (
+                                                                <li key={idx}>{activity}</li>
+                                                            ))
+                                                        ) : (
+                                                            <li></li>
+                                                        )}
+                                                    </ul>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p></p>
+                                        )}
                                     </div>
                                 </div>
                             </div>

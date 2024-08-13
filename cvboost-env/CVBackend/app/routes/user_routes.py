@@ -1,11 +1,11 @@
 #importaciones necesarias
 from fastapi import APIRouter, HTTPException, status #enrutador, excepcioneshhtp y status
 from fastapi.responses import JSONResponse #respuestasjson
-from app.database_config import get_database_connection #configuracion de bd
+from CVBackend.app.database_config import get_database_connection #configuracion de bd
 #importaciones complemento
-from app.utils.json_web_token import create_jwt_token
+from CVBackend.app.utils.json_web_token import create_jwt_token
 import bcrypt #encirptacion
-from app.models.users_model import User, Userlogin, UserTerms #modelo para datos de usuario
+from CVBackend.app.models.users_model import User, Userlogin, UserTerms #modelo para datos de usuario
 from datetime import datetime, timezone #modelo de fechas
 
 router = APIRouter()
