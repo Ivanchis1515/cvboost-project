@@ -14,7 +14,7 @@ const Preloader = ({ setIsLoading }) => {
 
     return (
         <div className="preloader flex-column justify-content-center align-items-center">
-            <img className="animation__shake" src={LogoIcono} alt="AdminLTELogo" height={60} width={60} />
+            <img className="animation__shake" src={LogoIcono} alt="AdminLTELogo" height={100} width={100} />
         </div>
     );
 }

@@ -135,7 +135,7 @@ const CreateCV = () => {
                                     <div className="card-body">
                                         <Link to="/">
                                             <div className="text-center">
-                                                <img src={LogoIcono} alt="AdminLTE Logo" className="brand-image img-circle elevation-0" style={{ opacity: '.8', width: "150px" }} />
+                                                <img src={LogoIcono} alt="AdminLTE Logo" className="brand-image img-circle elevation-0 " style={{ opacity: '.8', width: "150px" }} />
                                             </div>
                                         </Link>
                                         <h2 className="font-weight-bold text-center">Sólo tres sencillos pasos</h2>

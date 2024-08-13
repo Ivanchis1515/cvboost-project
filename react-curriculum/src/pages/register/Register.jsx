@@ -1,5 +1,5 @@
 ///importaciones de react 
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 
 //navegacion entre paginas 
 import { Link, useNavigate } from 'react-router-dom'
@@ -7,11 +7,15 @@ import { Link, useNavigate } from 'react-router-dom'
 //utils
 import { registerUser } from '../../utils/RegisterLogin/RegisterLogin';
 
+//contexto
+import { curriculumContext } from '../../context/curriculumContext';
+
 //recursos
 import Logo from "../../../public/dist/img/AdminLTELogo.png"
-import LogoIcono from "../../assets/img/Logoicono.png"
+import LogoIconoWhite from "../../assets/img/LogoletrasWhite.png"
 
 const Register = () => {
+    const { fetchUserData } = useContext(curriculumContext); //variables globales
     const navigate = useNavigate(); //nevageacion programatica
     const [email, setEmail] = useState(''); //estado para el correo
     const [password, setPassword] = useState(''); //estado para la contraseña
@@ -64,6 +68,8 @@ const Register = () => {
             if (response.status === 200) {
                 //guardar el token en sessionStorage
                 sessionStorage.setItem('authToken', response.data.token); //accede a los datos dentro de response.data
+                //despues de iniciar sesion, intenta cargar los datos del usuario
+                await fetchUserData(); 
                 //si el registro es exitoso
                 navigate('/create-csv');//redirigir a la pagina
             }
@@ -74,13 +80,18 @@ const Register = () => {
     };
 
     return (
-        <div className="register-page">
+        <div className="register-page" style={{
+                height: "100vh",
+                background: "url(https://conecta.tec.mx/sites/default/files/styles/header_full/public/2023-01/como-elaborar-un-curriculum-nota-conecta.jpg.webp?itok=Tkx4buBA) no-repeat center center fixed",
+                backgroundSize: "cover",
+            }}
+        >
             {/* Register-box */}
             <div className="register-box">
                 <div className="register-logo">
                     {/* <a href="../../index2.html"><b>Cv</b>Boost</a> */}
                     <Link to="/">
-                        <img className="logo-dark img-fluid" width={200} height={150} src={LogoIcono} alt="CvBoost" />
+                        <img className="logo-dark img-fluid" width={300} src={LogoIconoWhite} alt="CvBoost" />
                     </Link>
                 </div>
                 {/* Content-card */}

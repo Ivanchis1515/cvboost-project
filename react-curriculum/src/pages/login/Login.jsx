@@ -12,6 +12,7 @@ import { curriculumContext } from '../../context/curriculumContext';
 
 //recursos
 import Logo from "../../../public/dist/img/AdminLTELogo.png"
+import LogoletrasDark from "../../assets/img/LogoletrasDark.png";
 
 const Login = () => {
     const { fetchUserData } = useContext(curriculumContext); //variables globales
@@ -54,8 +55,8 @@ const Login = () => {
             if (response.status === 200) {
                 sessionStorage.setItem('authToken', response.data.token); //accede a los datos dentro de response.data
 
-                // Después de iniciar sesión, intenta cargar los datos del usuario
-                await fetchUserData(); // Asegúrate de que la función `fetchUserData` esté disponible
+                //despues de iniciar sesion, intenta cargar los datos del usuario
+                await fetchUserData();
 
                 //si el registro es exitoso
                 navigate('/');//redirigir a la pagina
@@ -68,11 +69,17 @@ const Login = () => {
     };
 
     return (
-        <div className="login-page">
+        <div className="login-page"
+            style={{
+                height: "100vh",
+                background: "url(https://conecta.tec.mx/sites/default/files/styles/header_full/public/2023-01/como-elaborar-un-curriculum-nota-conecta.jpg.webp?itok=Tkx4buBA) no-repeat center center fixed",
+                backgroundSize: "cover",
+            }}
+        >
             <div className="login-box">
                 <div className="login-logo">
                     <Link to="/">
-                        <img className="logo-dark img-fluid" width={100} height={100} src={Logo} alt="CvBoost" />
+                        <img className="logo-dark img-fluid" width={200} src={LogoletrasDark} alt="CvBoost" />
                     </Link>
                 </div>
                 {/* /.login-logo */}
