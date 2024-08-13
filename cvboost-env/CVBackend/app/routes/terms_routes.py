@@ -1,7 +1,7 @@
 #importaciones necesarias
 from fastapi import APIRouter, HTTPException, status #enrutador, excepcioneshhtp y status
 from fastapi.responses import JSONResponse #respuestasjson
-from CVBackend.app.database_config import get_database_connection #configuracion de bd
+from app.database_config import get_database_connection #configuracion de bd
 #importaciones complemento
 
 

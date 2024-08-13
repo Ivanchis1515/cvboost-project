@@ -1,9 +1,9 @@
 #importaciones necesarias
 from fastapi import APIRouter, HTTPException, status #enrutador, excepcioneshhtp y status
 from fastapi.responses import JSONResponse #respuestasjson
-from CVBackend.app.database_config import get_database_connection #configuracion de bd
+from app.database_config import get_database_connection #configuracion de bd
 ##importaciones complemento
-from CVBackend.app.models.curriculums_model import CVUserCreate, UserInformationCreate, UserSectionRequest, UserEducationCreate, UserWorkExperienceCreate
+from app.models.curriculums_model import CVUserCreate, UserInformationCreate, UserSectionRequest, UserEducationCreate, UserWorkExperienceCreate
 import json
 
 # Inicializa el enrutador de FastAPI
