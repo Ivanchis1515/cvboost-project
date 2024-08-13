@@ -1,6 +1,6 @@
 # ProyectoCV
-### UNIVERSIDAD TECNOLÓGICA DE PUEBLA
-### TECNOLOGÍAS DE LA INFORMACIÓN INGENIERÍA EN DESARROLLO Y GESTIÓN DE SOFTWARE
+### Universidad Tecnológica De Puebla
+### Tecnologías de la Información Ingeniería en Desarrollo y Gestión De Software
 
 ### Equipo de trabajo 
 Hernández Velázquez Jorge Ivan UTP0151511
@@ -17,9 +17,15 @@ Jose Angel Luna Sedeño UTP0149900
 
 
 ### Datos docente
-Desarrollo Web Integral
+Materia:Desarrollo Web Integral
+
+
 Profesor: Paulo Daniel Vázquez Mora
+
+
 9º ” A”
+
+
 
 
 ## Descripción del Proyecto
@@ -33,30 +39,30 @@ El diseño de la plataforma está pensado para ser intuitivo y accesible, facili
 ## PREREQUISITOS
 
 ### Frontend:
-Dominio de HTML, CSS, y JavaScript para la creación de una interfaz de usuario responsiva y atractiva.
-Familiaridad con frameworks de frontend como Angular, React o Vue.js para una mejor gestión del estado y componentes dinámicos.
+- Dominio de HTML, CSS, y JavaScript para la creación de una interfaz de usuario responsiva y atractiva.
+- Familiaridad con frameworks de frontend como Angular, React o Vue.js para una mejor gestión del estado y componentes dinámicos.
 ### Backend:
-Conocimiento en Flask o Django para manejar la lógica del servidor, APIs y la interacción con bases de datos.
-Familiaridad con RESTful APIs para la comunicación entre frontend y backend.
+- Conocimiento en Flask o Django para manejar la lógica del servidor, APIs y la interacción con bases de datos.
+- Familiaridad con RESTful APIs para la comunicación entre frontend y backend.
 ### DevOps:
-Conocimiento en Git y control de versiones para gestionar el código de manera efectiva.
-Experiencia en despliegue en la nube (AWS, Heroku, etc.) para alojar el CV digital.
+- Conocimiento en Git y control de versiones para gestionar el código de manera efectiva.
+- Experiencia en despliegue en la nube (AWS, Heroku, etc.) para alojar el CV digital.
 
  ### Diseño y UX/UI:
-•	Habilidades en diseño gráfico para crear una interfaz visualmente atractiva.
-•	Conocimiento de principios de UX/UI para asegurar una experiencia de usuario intuitiva y agradable.
-•	Uso de herramientas de diseño como Figma para prototipos y maquetas.
+- Habilidades en diseño gráfico para crear una interfaz visualmente atractiva.
+- Conocimiento de principios de UX/UI para asegurar una experiencia de usuario intuitiva y agradable.
+- Uso de herramientas de diseño como Figma para prototipos y maquetas.
 
 ### Contenido y Estrategia:
-•	Redacción técnica para elaborar descripciones claras y concisas de habilidades y proyectos.
-•	Gestión de contenido para organizar y estructurar la información de manera lógica y atractiva.
+- Redacción técnica para elaborar descripciones claras y concisas de habilidades y proyectos.
+- Gestión de contenido para organizar y estructurar la información de manera lógica y atractiva.
 Testing y Calidad:
-•	Conocimiento en pruebas unitarias y de integración para asegurar que todas las funcionalidades del CV funcionan correctamente.
-•	Experiencia en test de usabilidad para evaluar la experiencia del usuario final.
+- Conocimiento en pruebas unitarias y de integración para asegurar que todas las funcionalidades del CV funcionan correctamente.
+- Experiencia en test de usabilidad para evaluar la experiencia del usuario final.
 Consideraciones de Seguridad:
-•	Implementación de mejores prácticas de seguridad para proteger los datos personales del usuario.
-•	Conocimiento en autenticación y autorización para controlar el acceso a la plataforma.
-•	Habilidad para crear documentación clara y completa que detalle el uso y mantenimiento del CV digital.
+- Implementación de mejores prácticas de seguridad para proteger los datos personales del usuario.
+- Conocimiento en autenticación y autorización para controlar el acceso a la plataforma.
+- Habilidad para crear documentación clara y completa que detalle el uso y mantenimiento del CV digital.
 
 
 
