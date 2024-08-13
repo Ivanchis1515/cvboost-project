@@ -1,6 +1,6 @@
 # Excluir la carpeta del entorno virtual
 venv/
-
+uploaded_files/
 
 # Otras posibles exclusiones:
 __pycache__/

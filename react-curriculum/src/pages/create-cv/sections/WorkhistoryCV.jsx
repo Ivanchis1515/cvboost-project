@@ -21,7 +21,7 @@ import { showErrorToast, showInfoToast, showSuccessToast } from '../../../compon
 import { templates } from '../../../utils/plantillasConfig';
 
 //helpers
-import { guardarExperiencia } from '../../../utils/curriculums/curriculums';
+import { actualizarExperiencia, eliminarExperiencia, guardarExperiencia } from '../../../utils/curriculums/curriculums';
 
 const WorkhistoryCV = () => {
     //variables globales para el contexto (retoma la plantilla y el color elegidos) anteriormente
@@ -66,11 +66,25 @@ const WorkhistoryCV = () => {
     const [completedSections, setCompletedSections] = useState([]); //secciones completadas
     const [userDataFromSections, setUserDataFromSections] = useState({}); //datos de las secciones
 
-    const handleAddRecord = async () => {
+    const handleSubmit = (e) => {
         const hasFormData = Object.values(formData).some(value => value !== '' && value !== false); //verifica si el formulario tiene datos
-        if (!hasFormData) {
-            showInfoToast('Por favor, completa los campos del formulario para agregar un campo de estudio.');
+        if (hasFormData) {
+            showInfoToast('Por favor, incluye tus datos para llegar a la siguiente sección');
             return; //no enviar datos si el formulario esta vacio
+        }
+        e.preventDefault();
+
+        // Navegar a la siguiente seccion
+        // navigate('/create-csv/section/workhistory');
+    };
+
+    //funcion para agregar registro
+    const handleAddRecord = async () => {
+        // Verifica si todos los campos del formulario están vacíos
+        const hasFormData = Object.values(formData).some(value => value !== '' && value !== false);
+        if (hasFormData) {
+            showInfoToast('Por favor, completa los campos del formulario para agregar un campo de estudio.');
+            return; // No enviar datos si el formulario está vacío
         }
 
         try {
@@ -106,6 +120,89 @@ const WorkhistoryCV = () => {
             showErrorToast('Error al agregar el registro');
         }
     };
+
+    //funcion para actualizar registro existente
+    const handleUpdate = async () => {
+        try {
+            //prepara los datos a enviar para la actualizacion
+            const dataToSubmit = {
+                id: editId, //identificador del registro a actualizar
+                user_id: userData?.id,
+                cvid_user_template: idcv_usertemplate,
+                ...formData,
+                currentlyWorking: formData.currentlyWorking ? 1 : 0, //conversion a tinyint
+                workEndDate: formData.currentlyWorking ? null : formData.workEndDate,
+            };
+
+            //envia los datos al endpoint de actualizacion
+            const response = await actualizarExperiencia(dataToSubmit);
+
+            //maneja la respuesta
+            if (response.status === 200 && response.data.content) {
+                //actualiza el registro especifico en el estado
+                setworkRecords(prevRecords =>
+                    prevRecords.map(record =>
+                        //recorre los registros hasta encontrarlo
+                        record.id === editId ? response.data.content : record
+                    )
+                );
+                //limpia el formulario y el ID de edicion
+                setFormData({
+                    position: '',
+                    company: '',
+                    workCity: '',
+                    workMunicipality: '',
+                    workStartDate: '',
+                    workEndDate: '',
+                    currentlyWorking: false,
+                    Workactivities: [''] // lista inicial con un campo vacio
+                });
+                setEditId(null);
+                showSuccessToast(response.data.message) //muestra el mensaje del servidor
+            } else{
+                showErrorToast(response.status)
+            }
+        } catch (error) {
+            showErrorToast('Error al actualizar el registro:' + error.message);
+        }
+    };
+
+    const handleDelete = async(id) => {
+        try {
+            //confirmar la eliminacion con el usuario
+            const confirmDelete = window.confirm("¿Estas seguro de que deseas eliminar este registro?");
+            if (!confirmDelete) return;
+    
+            //enviar la solicitud de eliminacion al endpoint
+            const response = await eliminarExperiencia(id);
+    
+            //verificar la respuesta
+            if (response.status === 200) {
+                //eliminar el registro del estado
+                setworkRecords(prevRecords =>
+                    //filtra hasta encontrar el registro
+                    prevRecords.filter(record => record.id !== id)
+                );
+                //limpia el formulario y el ID de edicion
+                setFormData({
+                    position: '',
+                    company: '',
+                    workCity: '',
+                    workMunicipality: '',
+                    workStartDate: '',
+                    workEndDate: '',
+                    currentlyWorking: false,
+                    Workactivities: [''] // lista inicial con un campo vacio
+                });
+                showSuccessToast(response.data.message);
+                setEditId(null);
+            } else {
+                showInfoToast('Error al eliminar el registro', response.status);
+            }
+        } catch (error) {
+            showErrorToast('Error al eliminar el registro:', error);
+        }
+    }
 
     //funcion para cambiar de plantilla
     const handleChangeTemplate = (templateName) => {
@@ -402,11 +499,11 @@ const WorkhistoryCV = () => {
                                         </div>
                                     </div>
                                     <div className="card-footer">
-                                        <button className="btn btn-success float-right">
+                                        <button className="btn btn-success float-right" onClick={handleSubmit}>
                                             Siguiente
                                         </button>
                                         {editId ? (
-                                            <button className="btn btn-success float-right mr-2">
+                                            <button className="btn btn-success float-right mr-2" onClick={handleUpdate}>
                                                 Actualizar
                                             </button>
                                         ) : (
@@ -414,7 +511,7 @@ const WorkhistoryCV = () => {
                                                 Agregar otro campo de estudio
                                             </button>
                                         )}
-                                        <Link to="/create-csv/section/headerCV" className="btn btn-secondary justify-content-between">
+                                        <Link to="/create-csv/section/studies" className="btn btn-secondary justify-content-between">
                                             Regresar
                                         </Link>
                                     </div>
@@ -425,7 +522,7 @@ const WorkhistoryCV = () => {
                                         <div className="card card-success collapsed-card" key={index}>
                                             <div className="card-header">
                                                 <h3 className="card-title">
-                                                    {record.certification || 'No disponible'} - {record.start_date || 'Fecha de inicio no disponible'} - {record.end_date || (record.currently_studying ? 'Actual' : 'No disponible')}
+                                                    {record.position || 'No disponible'}: {record.work_start_date || 'Fecha de inicio no disponible'} - {record.work_end_date || (record.currently_working ? 'Actual' : 'No disponible')}
                                                 </h3>
                                                 <div className="card-tools">
                                                     <button type="button" className="btn btn-tool" onClick={() => handleDelete(record.id)}>
@@ -437,13 +534,14 @@ const WorkhistoryCV = () => {
                                                         onClick={() => {
                                                             //actualiza los valores del formdata con los del record
                                                             setFormData({
-                                                                school: record.school || '',
-                                                                citySchool: record.city_school || '',
-                                                                certification: record.certification || '',
-                                                                fieldOfStudy: record.field_of_study || '',
-                                                                startDate: record.start_date || '',
-                                                                endDate: record.end_date || '',
-                                                                currentlyStudying: record.currently_studying === 1
+                                                                position: record.position || '',
+                                                                company: record.company || '',
+                                                                workCity: record.work_city || '',
+                                                                workMunicipality: record.work_municipality || '',
+                                                                workStartDate: record.work_start_date || '',
+                                                                workEndDate: record.work_end_date || '',
+                                                                currentlyWorking: record.currently_working == 1,
+                                                                Workactivities: record.activities || [''] // lista inicial con un campo vacio
                                                             });
                                                             setEditId(record.id); //guardar el id del registro para actualizarlo
                                                         }}
@@ -456,11 +554,23 @@ const WorkhistoryCV = () => {
                                                 </div>
                                             </div>
                                             <div className="card-body">
-                                                <p>Universidad: {record.school || 'Sin nombre'}</p>
-                                                <p>Ciudad: {record.city_school || 'No disponible'}</p>
-                                                <p>Campo de estudio: {record.field_of_study || 'No disponible'}</p>
-                                                <p>Fecha de inicio: {record.start_date || 'No disponible'}</p>
-                                                <p>Fecha de finalización: {record.end_date || (record.currently_studying ? 'Actual' : 'No disponible')}</p>
+                                                <p>Empresa: {record.company || 'Sin nombre'}</p>
+                                                <p>Ciudad: {record.work_city || 'No disponible'}</p>
+                                                <p>Municipio/alcaldia: {record.work_municipality || 'No disponible'}</p>
+                                                <p>Fecha de inicio: {record.work_start_date || 'No disponible'}</p>
+                                                <p>Fecha de finalización: {record.work_end_date || (record.currently_working ? 'Actualmente' : 'No disponible')}</p>
+                                                <p>
+                                                    Actividades realizadas
+                                                </p>
+                                                <ul>
+                                                    {record.activities && record.activities.length > 0 ? (
+                                                        record.activities.map((activity, activityIndex) => (
+                                                            <li key={activityIndex}>{activity}</li>
+                                                        ))
+                                                    ) : (
+                                                        <li>No hay actividades disponibles</li>
+                                                    )}
+                                                </ul>
                                             </div>
                                         </div>
                                     ) : null

@@ -448,28 +448,28 @@ def create_user_work_experience(work_experience: UserWorkExperienceCreate):
         cursor.close()
         connection.close()
 
-# Endpoint para actualizar la experiencia laboral
+#actualiza la experiencia del usuario
 @router.put("/update-work-experience")
-async def update_work_experience(work_experience: UserWorkExperienceCreate):
-    connection = get_database_connection() #obtener la conexion a la base de datos
-    cursor = connection.cursor() #obtener el cursor
+def update_work_experience(work_experience: UserWorkExperienceCreate):
+    connection = get_database_connection()  # Obtener la conexión a la base de datos
+    cursor = connection.cursor()  # Obtener el cursor
 
     try:
-        #convertir el valor de currently_working a TINYINT
-        currently_working = 1 if work_experience.currently_working else 0
+        # Convertir el valor de currently_working a TINYINT
+        currently_working = 1 if work_experience.currentlyWorking else 0
         
-        #convertir la lista de actividades a formato JSON
-        activities_json = json.dumps(work_experience.activities)
+        # Convertir la lista de actividades a formato JSON
+        activities_json = json.dumps(work_experience.Workactivities)
         
-        #consultar si el registro existe
+        # Consultar si el registro existe
         select_query = "SELECT * FROM userwork_experience WHERE id = %s"
-        cursor.execute(select_query, (work_experience.id,)) #ejecutar la consulta
-        existing_record = cursor.fetchone()  #obtener el unico resultado
+        cursor.execute(select_query, (work_experience.id,))  # Ejecutar la consulta
+        existing_record = cursor.fetchone()  # Obtener el único resultado
         
-        if not existing_record: #si no existe resultado
+        if not existing_record:  # Si no existe resultado
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Registro no encontrado")
 
-        #actualizar los datos en la tabla userwork_experience
+        # Actualizar los datos en la tabla userwork_experience
         update_query = """
             UPDATE userwork_experience
             SET 
@@ -496,16 +496,16 @@ async def update_work_experience(work_experience: UserWorkExperienceCreate):
             work_experience.workEndDate,
             currently_working,
             activities_json,
-            work_experience.id  #ID del registro a actualizar
+            work_experience.id  # ID del registro a actualizar
         ))
         connection.commit()
 
-        #consultar el registro actualizado
+        # Consultar el registro actualizado
         select_query = "SELECT * FROM userwork_experience WHERE id = %s"
-        cursor.execute(select_query, (work_experience.id,)) #ejecutar la consulta
-        updated_record = cursor.fetchone() #seleccionar el unico registro
+        cursor.execute(select_query, (work_experience.id,))  # Ejecutar la consulta
+        updated_record = cursor.fetchone()  # Seleccionar el único registro
 
-        #convertir las fechas a formato ISO para la serializacion JSON
+        # Convertir las fechas a formato ISO para la serialización JSON
         if updated_record:
             updated_record = {
                 "id": updated_record[0],
@@ -517,8 +517,8 @@ async def update_work_experience(work_experience: UserWorkExperienceCreate):
                 "work_municipality": updated_record[6],
                 "work_start_date": updated_record[7].isoformat() if updated_record[7] else None,
                 "work_end_date": updated_record[8].isoformat() if updated_record[8] else None,
-                "currently_working": bool(updated_record[9]),
-                "activities": json.loads(updated_record[10])  #convertir el JSON a una lista
+                "currently_working": updated_record[9],
+                "activities": json.loads(updated_record[10])  # Convertir el JSON a una lista
             }
 
         return JSONResponse(
@@ -531,6 +531,39 @@ async def update_work_experience(work_experience: UserWorkExperienceCreate):
 
     except Exception as err:
         print(f"Error: {err}")  # Depuración
+        raise HTTPException(status_code=500, detail=f"Database error: {err}")
+    finally:
+        cursor.close()
+        connection.close()
+
+@router.delete("/delete-work-experience/{id}")
+def delete_user_education(id: int):
+    connection = get_database_connection() #obtener la conexion a la base de datos
+    cursor = connection.cursor() #obtener el cursor
+
+    try:
+        #consultar si el registro existe
+        select_query = "SELECT * FROM userwork_experience WHERE id = %s"
+        cursor.execute(select_query, (id,)) #ejecutar la consulta
+        existing_record = cursor.fetchone() #elegir el registro
+
+        if not existing_record:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Registro no encontrado") #sino existe manda un mensaje
+
+        #eliminar el registro de la tabla UserEducation
+        delete_query = "DELETE FROM userwork_experience WHERE id = %s"
+        cursor.execute(delete_query, (id,)) #ejecutar la consulta
+        connection.commit()
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "message": "Campo de estudio eliminado"
+            }
+        )
+
+    except Exception as err:
+        print(f"Error: {err}") #depuracion
         raise HTTPException(status_code=500, detail=f"Database error: {err}")
     finally:
         cursor.close()

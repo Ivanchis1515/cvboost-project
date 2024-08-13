@@ -97,3 +97,16 @@ export const guardarExperiencia = async(data) => {
     const response = await axiosInstance.post(url, data);
     return response
 }
+
+//actualiza un registro de experiencia
+export const actualizarExperiencia = async(data) =>{
+    const url = "/cv/update-work-experience";
+    const response = await axiosInstance.put(url, data);
+    return response;
+}
+
+export const eliminarExperiencia = async(id) => {
+    const url = "/cv/delete-work-experience/";
+    const response = await axiosInstance.delete(url + id);
+    return response;
+}
