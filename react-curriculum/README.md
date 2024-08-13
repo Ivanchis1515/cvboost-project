@@ -1,4 +1,5 @@
-# ProyectoCV
+# CvBoost Backend
+
 ## Institución 
 
  Universidad Tecnológica De Puebla
@@ -30,7 +31,9 @@ Profesor: Paulo Daniel Vázquez Mora
 9º ” A”
 
 
+## Descripción
 
+CvBoost Backend es un proyecto de backend construido con FastAPI, diseñado para gestionar plantillas de currículum en línea. Este backend está estructurado para ofrecer una solución escalable y modular, permitiendo la integración de diferentes rutas, modelos, middleware y servicios. Está configurado para facilitar el desarrollo con recarga automática para una experiencia de desarrollo más fluida.
 
 ## Descripción del Proyecto
 El proyecto de CV tiene como finalidad desarrollar una plataforma digital que vaya más allá del currículum tradicional. En lugar de ser simplemente un documento estático, esta plataforma será un entorno interactivo y visualmente atractivo, diseñado específicamente para desarrolladores de software. Aquí, los usuarios podrán documentar y mostrar sus habilidades, proyectos y logros de manera organizada y eficiente.
@@ -96,6 +99,7 @@ Consideraciones de Seguridad:
 - Habilidad para crear documentación clara y completa que detalle el uso y mantenimiento del CV digital.
 
 
+
 ## Estructura del Proyecto
 El proyecto está organizado de la siguiente manera:
 ```
@@ -122,6 +126,7 @@ CVBackend/
 └── README.md
 ```
 
+
 ## Tecnologías Empleadas
 
 - **FastAPI**: Un framework moderno y rápido para construir APIs con Python 3.7+ basado en tipos de datos estándar de Python.
@@ -135,6 +140,47 @@ CVBackend/
 - **HTML**: Se utiliza para estructurar el contenido del CV como   encabezados, párrafos, listas y enlaces.
 - **MySQL**: Base de datos relacionales que se pueden usar para almacenar información más estructurada.
 
+
+## Prerrequisitos
+
+- Python 3.7 o superior.
+- Pip para la gestión de paquetes.
+- Un entorno virtual (recomendado para evitar conflictos de dependencias).
+
+## Instalación
+1. **Crea y activa un entorno virtual:**
+```
+python -m venv <Nombreentorno-env>
+Activación del entorno virtual en Windows, ejecuta: fastapi-env\Scripts\activate
+Activación del entorno virtual en Unix o MacOS, ejecuta: source fastapi-env/bin/activate
+```
+2. **Clona el repositorio:**
+   ```bash
+   git clone CVBackend
+   cd <NOMBRE_DEL_REPOSITORIO>
+   ```
+3. **Instala las dependencias**
+```
+pip install -r requirements.txt
+```
+4. **Ejecuta el proyecto**
+```
+cd CVBackend
+python start.py
+```
+
+
+
+## Configuración del Servidor
+El archivo start.py se encarga de iniciar el servidor Uvicorn con la configuración especificada en server_config.py. Puedes ajustar la configuración del servidor, como el host, el puerto y el modo de recarga, directamente en server_config.py.
+
+
+## Base de Datos
+El proyecto está configurado para conectarse a una base de datos MySQL. Asegúrate de que MySQL esté instalado y funcionando. La configuración de la base de datos debe especificarse en config.py en la carpeta app.
+
+
+## Tutorial para el Usuario
+1. **Acceso a la API:** Una vez que el backend esté corriendo, puedes acceder a la documentación interactiva de la API en http://127.0.0.1:8000/docs o la alternativa en http://127.0.0.1:8000/redoc.
 
 
 ## Librerías 
@@ -173,6 +219,8 @@ Copiar código
 
 
 ## Típos de Pruebas:
+
+
 - Pruebas Unitarias: Validar funciones individuales y componentes del código.
 - Pruebas de Integración: Asegurar que los diferentes módulos y servicios interactúan correctamente.
 - Pruebas Funcionales: Verificar que el sistema cumple con los requisitos funcionales.
@@ -182,6 +230,8 @@ Copiar código
 
 
 ## Lecciónes Aprendidas
+
+
 Durante la elaboración de mi CV, he experimentado un crecimiento significativo, tanto en habilidades técnicas como en la gestión de proyectos personales. Desde el comienzo, comprendí la importancia de una planificación meticulosa y estructurada, lo que me permitió mantenerme enfocado en mis objetivos y optimizar la gestión de mi tiempo y recursos. La adopción de tecnologías avanzadas como React, Vite y Material-UI fue fundamental para crear un CV dinámico y visualmente atractivo, fortaleciendo mi capacidad para ofrecer una experiencia de usuario intuitiva y efectiva.
 
 
