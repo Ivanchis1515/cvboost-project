@@ -78,10 +78,19 @@ El diseño de la plataforma está pensado para ser intuitivo y accesible, facili
 ### Contenido y Estrategia:
 - Redacción técnica para elaborar descripciones claras y concisas de habilidades y proyectos.
 - Gestión de contenido para organizar y estructurar la información de manera lógica y atractiva.
+
+
 Testing y Calidad:
+
+
 - Conocimiento en pruebas unitarias y de integración para asegurar que todas las funcionalidades del CV funcionan correctamente.
 - Experiencia en test de usabilidad para evaluar la experiencia del usuario final.
+
+
 Consideraciones de Seguridad:
+
+
+
 - Implementación de mejores prácticas de seguridad para proteger los datos personales del usuario.
 - Conocimiento en autenticación y autorización para controlar el acceso a la plataforma.
 - Habilidad para crear documentación clara y completa que detalle el uso y mantenimiento del CV digital.
