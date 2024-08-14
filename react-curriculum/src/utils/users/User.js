@@ -32,3 +32,4 @@ export const userDatainfo = async (userId) => {
     const response = await axiosInstance.get(url + userId);
     return response
 };
+
