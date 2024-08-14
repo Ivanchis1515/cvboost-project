@@ -125,6 +125,8 @@ npm run test
  Este comando se utiliza para ejecutar scripts de prueba definidos en el archivo package.json de un proyecto Node.js.
 
 Funcionamiento del comando
+
+
 npm: Es el administrador de paquetes de Node.js, que se utiliza para gestionar dependencias y ejecutar scripts en proyectos JavaScript.
 
 
