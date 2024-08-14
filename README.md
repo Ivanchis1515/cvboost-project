@@ -126,8 +126,14 @@ npm run test
 
 Funcionamiento del comando
 npm: Es el administrador de paquetes de Node.js, que se utiliza para gestionar dependencias y ejecutar scripts en proyectos JavaScript.
+
+
 run: Es un subcomando de npm que se utiliza para ejecutar scripts definidos en el archivo package.json.
+
+
 test: Es el nombre del script que quieres ejecutar. En este caso, es comúnmente utilizado para ejecutar pruebas automatizadas.
+
+
 
 ### Comando uvicorn main:app --reload
 
