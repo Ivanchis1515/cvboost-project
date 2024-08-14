@@ -112,7 +112,26 @@ npm run test
 
 
 ## Configuración del Servidor
-El archivo start.py se encarga de iniciar el servidor Uvicorn con la configuración especificada en server_config.py. Puedes ajustar la configuración del servidor, como el host, el puerto y el modo de recarga, directamente en server_config.py.
+El archivo start.py se encarga de iniciar el servidor Uvicorn con la configuración especificada en server_config.py. 
+
+Puedes ajustar la configuración del servidor, como el host, el puerto y el modo de recarga, directamente en server_config.py.
+
+
+
+### Comando test
+```
+npm run test 
+```
+ Este comando se utiliza para ejecutar scripts de prueba definidos en el archivo package.json de un proyecto Node.js.
+
+Funcionamiento del comando
+npm: Es el administrador de paquetes de Node.js, que se utiliza para gestionar dependencias y ejecutar scripts en proyectos JavaScript.
+run: Es un subcomando de npm que se utiliza para ejecutar scripts definidos en el archivo package.json.
+test: Es el nombre del script que quieres ejecutar. En este caso, es comúnmente utilizado para ejecutar pruebas automatizadas.
+
+### Comando uvicorn main:app --reload
+
+uvicorn main:app --reload es un comando que se utiliza para iniciar un servidor FastAPI utilizando Uvicorn, que es un servidor ASGI (Asynchronous Server Gateway Interface) para Python.
 
 ## Base de Datos
 El proyecto está configurado para conectarse a una base de datos MySQL. Asegúrate de que MySQL esté instalado y funcionando. La configuración de la base de datos debe especificarse en config.py en la carpeta app.
@@ -172,10 +191,15 @@ El diseño de la plataforma está pensado para ser intuitivo y accesible, facili
 - **React y Vite**: Desarrollo frontend
 - **HTML**: Se utiliza para estructurar el contenido del CV como   encabezados, párrafos, listas y enlaces.
 - **MySQL**: Base de datos relacionales que se pueden usar para almacenar información más estructurada.
+- **Asminlite3**:Tecnología, herramienta o término para desarrollar dashboards y aplicaciones web con un diseño moderno y funcional.
 
 
 ## Configuración del Servidor
-El archivo start.py se encarga de iniciar el servidor Uvicorn con la configuración especificada en server_config.py. Puedes ajustar la configuración del servidor, como el host, el puerto y el modo de recarga, directamente en server_config.py.
+El archivo start.py se encarga de iniciar el servidor Uvicorn con la configuración especificada en server_config.py. 
+Puedes ajustar la configuración del servidor, como el host, el puerto y el modo de recarga, directamente en server_config.py.
+
+
+
 
 
 ## Base de Datos
