@@ -22,9 +22,9 @@ import { showErrorToast, showInfoToast, showSuccessToast } from '../../../compon
 import { templates } from '../../../utils/plantillasConfig';
 
 //helpers
-import { actualizarCompetencia, eliminarCompetencia, guardarCompetencia } from '../../../utils/curriculums/curriculums';
+import { actualizaLenguaje, eliminarLenguaje, guardaLenguaje } from '../../../utils/curriculums/curriculums';
 
-const SkillsCV = () => {
+const LanguagesCV = () => {
     const navigate = useNavigate();
     //variables globales para el contexto (retoma la plantilla y el color elegidos) anteriormente
     const { userData, selectedTemplate, selectedColor, setSelectedTemplate, setSelectedColor } = useContext(curriculumContext);
@@ -44,16 +44,16 @@ const SkillsCV = () => {
     const [isLoading, setIsLoading] = useState(true); //carga del preloader 
     //formdata formulario
     const [formData, setFormData] = useState({
-        skills: [{ name: '' }] //Lista inicial con un campo vacio y un valor de slider por defecto
+        languages: [{ name: '', level: 0 }] //lista inicial con un campo vacio y un valor de slider por defecto
     });
 
-    const [skillRecords, setSkillRecords] = useState([]); //array de elementos extraidos
+    const [languageRecords, setLanguageRecords] = useState([]); //array de elementos extraidos
     const [editId, setEditId] = useState(null); //id seleccionado
     const [completedSections, setCompletedSections] = useState([]); //secciones completadas
     const [userDataFromSections, setUserDataFromSections] = useState({}); //datos de las secciones
 
     const handleSubmit = (e) => {
-        const hasFormData = formData.skills.length === 0 || formData.skills.every(skill => !skill.name.trim())
+        const hasFormData = formData.languages.length === 0 || formData.languages.every(language => !language.name.trim())
         //verifica si hay habilidades para enviar
         if (!hasFormData) {
             showInfoToast('Por favor, guarde sus datos para avanzar a la siguiente sección');
@@ -62,41 +62,42 @@ const SkillsCV = () => {
         e.preventDefault();
 
         //navegar a la siguiente seccion
-        navigate('/create-csv/section/languages');
+        // navigate('/create-csv/section/languages');
     };
 
     //funcion para agregar registro
     const handleAddRecord = async () => {
-        const hasFormData = formData.skills.length === 0 || formData.skills.every(skill => !skill.name.trim())
+        const hasFormData = formData.languages.length === 0 || formData.languages.every(language => !language.name.trim())
         // Verifica si hay habilidades para enviar
         if (hasFormData) {
-            showInfoToast('Por favor, añade al menos una habilidad.');
+            showInfoToast('Por favor, añade al menos un lenguaje para guardar');
             return;
         }
 
         try {
             //para cada habilidad dentro del form
-            for (const skill of formData.skills) {
+            for (const language of formData.languages) {
                 //prepara los datos a enviar
                 const dataToSubmit = {
                     user_id: userData?.id,
                     cvid_user_template: idcv_usertemplate,
-                    skill: skill.name
+                    language: language.name,
+                    level: language.level
                 };
-        
+
                 //envia los datos al endpoint
-                const response = await guardarCompetencia(dataToSubmit);
+                const response = await guardaLenguaje(dataToSubmit);
                 if (response.status === 200) {
-                    setSkillRecords(prevRecords => [...prevRecords, response.data.content]);
-                    // Limpiar el formulario después de agregar todas las habilidades
-                    setFormData({ skills: [{ name: "" }] });
+                    setLanguageRecords(prevRecords => [...prevRecords, response.data.content]);
+                    //limpiar el formulario despues de agregar todas las habilidades
+                    setFormData({ languages: [{ name: "", level: 1 }] });
                     showSuccessToast(response.data.message);
                 } else {
                     showErrorToast(response.status);
                     return;
                 }
             }
-        
+
         } catch (error) {
             showErrorToast('Error al agregar las habilidades', error.message);
         }
@@ -105,38 +106,39 @@ const SkillsCV = () => {
     //funcion para actualizar registro existente
     const handleUpdate = async () => {
         try {
-            for(const skill of formData.skills){
+            for (const language of formData.languages) {
                 //prepara los datos a enviar para la actualizacion
                 const dataToSubmit = {
                     id: editId, //identificador del registro a actualizar
                     user_id: userData?.id,
                     cvid_user_template: idcv_usertemplate,
-                    skill: skill.name
+                    language: language.name,
+                    level: language.level
                 };
-    
+
                 //envia los datos al endpoint de actualizacion
-                const response = await actualizarCompetencia(dataToSubmit);
+                const response = await actualizaLenguaje(dataToSubmit);
                 //maneja la respuesta
                 if (response.status === 200) {
                     //actualiza el registro especifico en el estado
-                    setSkillRecords(prevRecords =>
+                    setLanguageRecords(prevRecords =>
                         prevRecords.map(record =>
                             //recorre los registros hasta encontrarlo
-                            record.id === editId ? { ...record, skill_name: skill.name } : record
+                            record.id === editId ? { ...record, language: language.name } : record
                         )
                     );
                     //limpia el formulario y el ID de edicion
-                    setFormData({ skills: [{ name: "" }] });
+                    setFormData({ languages: [{ name: "", level: 1 }] });
                     setEditId(null); //limpia el id
                     showSuccessToast(response.data.message) //muestra el mensaje del servidor
                 } else {
                     showErrorToast(response.status)
                 }
             }
-            //mostrar nuevamente el botón Añadir aptitud
-            const addSkillButton = document.getElementById('addSkillButton');
-            if (addSkillButton) {
-                addSkillButton.style.display = 'inline-block';
+            //mostrar nuevamente el boton Añadir aptitud
+            const addLanguageButton = document.getElementById('addLanguageButton');
+            if (addLanguageButton) {
+                addLanguageButton.style.display = 'inline-block';
             }
         } catch (error) {
             showErrorToast('Error al actualizar el registro:' + error.message);
@@ -150,17 +152,17 @@ const SkillsCV = () => {
             if (!confirmDelete) return;
 
             //enviar la solicitud de eliminacion al endpoint
-            const response = await eliminarCompetencia(id);
+            const response = await eliminarLenguaje(id);
 
             //verificar la respuesta
             if (response.status === 200) {
                 //eliminar el registro del estado
-                setSkillRecords(prevRecords =>
+                setLanguageRecords(prevRecords =>
                     //filtra hasta encontrar el registro
                     prevRecords.filter(record => record.id !== id)
                 );
                 //limpia el formulario y el ID de edicion
-                setFormData({ skills: [{ name: "" }] });
+                setFormData({ languages: [{ name: "", level: 1 }] });
                 setEditId(null); //limpia el id
                 showSuccessToast(response.data.message);
             } else {
@@ -208,7 +210,7 @@ const SkillsCV = () => {
             {/* Navbar */}
 
             {/* <!-- Main Sidebar Container --> */}
-            <AsideBarOr completedSections={completedSections} activeSection="skills" userData={userData} />
+            <AsideBarOr completedSections={completedSections} activeSection="languages" userData={userData} />
             {/* ./main sidebar */}
 
             {/* Content wrapper */}
@@ -329,18 +331,31 @@ const SkillsCV = () => {
                                                         Te sugerimos coloques palabras que describieron tus habilidades en tu trabajo.
                                                     </p>
                                                     <div className="form-group">
-                                                        {formData.skills.map((skill, index) => (
+                                                        {formData.languages.map((language, index) => (
                                                             <div key={index} className="row mb-3">
-                                                                <div className="col-sm-10">
+                                                                <div className="col-sm-8">
                                                                     <input
                                                                         type="text"
                                                                         className="form-control"
-                                                                        placeholder="Descripción de aptitud"
-                                                                        value={skill.name}
+                                                                        placeholder="Nombre del idioma"
+                                                                        value={language.name}
                                                                         onChange={(e) => {
-                                                                            const newSkills = [...formData.skills];
-                                                                            newSkills[index].name = e.target.value;
-                                                                            setFormData({ skills: newSkills });
+                                                                            const newLanguages = [...formData.languages];
+                                                                            newLanguages[index].name = e.target.value;
+                                                                            setFormData({ languages: newLanguages });
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                                <div className="col-sm-2">
+                                                                    <Slider
+                                                                        min={1}
+                                                                        max={5}
+                                                                        step={1}
+                                                                        initialValue={language.level || 3}
+                                                                        onChange={(value) => {
+                                                                            const newLanguages = [...formData.languages];
+                                                                            newLanguages[index].level = value;
+                                                                            setFormData({ languages: newLanguages });
                                                                         }}
                                                                     />
                                                                 </div>
@@ -350,7 +365,7 @@ const SkillsCV = () => {
                                                                         type="button"
                                                                         onClick={() => {
                                                                             setFormData((prevData) => ({
-                                                                                skills: prevData.skills.filter((_, i) => i !== index),
+                                                                                languages: prevData.languages.filter((_, i) => i !== index),
                                                                             }));
                                                                         }}
                                                                     >
@@ -362,14 +377,14 @@ const SkillsCV = () => {
                                                         <button
                                                             className="btn btn-primary"
                                                             type="button"
-                                                            id="addSkillButton"
+                                                            id="addLanguageButton"
                                                             onClick={() => {
                                                                 setFormData((prevData) => ({
-                                                                    skills: [...prevData.skills, { name: "" }],
+                                                                    languages: [...prevData.languages, { name: "", level: 3 }],
                                                                 }));
                                                             }}
                                                         >
-                                                            Añadir aptitud
+                                                            Añadir idioma
                                                         </button>
                                                     </div>
                                                 </div>
@@ -395,12 +410,29 @@ const SkillsCV = () => {
                                     </div>
                                 </div>
                                 {/* Renderizar tarjetas expandibles */}
-                                {skillRecords.map((record, index) => (
+                                {languageRecords.map((record, index) => (
                                     record ? (
                                         <div className="card card-success collapsed-card" key={index}>
                                             <div className="card-header">
                                                 <h3 className="card-title">
-                                                    {record.skill_name || 'No disponible'}
+                                                    {record.language || 'No disponible'}
+                                                    {" - "}
+                                                    {(() => {
+                                                        switch (record.level) {
+                                                            case 1:
+                                                                return 'Nivel principiante';
+                                                            case 2:
+                                                                return 'Nivel básico';
+                                                            case 3:
+                                                                return 'Nivel intermedio';
+                                                            case 4:
+                                                                return 'Avanzado';
+                                                            case 5:
+                                                                return 'Muy avanzado';
+                                                            default:
+                                                                return 'Nivel desconocido';
+                                                        }
+                                                    })()}
                                                 </h3>
                                                 <div className="card-tools">
                                                     <button type="button" className="btn btn-tool" onClick={() => handleDelete(record.id)}>
@@ -410,26 +442,42 @@ const SkillsCV = () => {
                                                         type="button"
                                                         className="btn btn-tool"
                                                         onClick={() => {
-                                                            //actualiza los valores del formdata con los del record
+                                                            // Actualiza los valores del formData con los del record
                                                             setFormData({
-                                                                skills: [{name:record.skill_name}] || [{ name: "" }],
+                                                                languages: [{ name: record.language, level: record.level }] || [{ name: "", level: 1 }],
                                                             });
-                                                            setEditId(record.id); //guardar el id del registro para actualizarlo
-                                                            //oculta el botón "Añadir aptitud"
-                                                            const addSkillButton = document.getElementById('addSkillButton'); //ubica el boton
-                                                            if (addSkillButton) {
-                                                                addSkillButton.style.display = 'none'; //desaparecelo
+                                                            setEditId(record.id); // Guarda el id del registro para actualizarlo
+                                                            // Oculta el botón "Añadir aptitud"
+                                                            const addLanguageButton = document.getElementById('addLanguageButton');
+                                                            if (addLanguageButton) {
+                                                                addLanguageButton.style.display = 'none';
                                                             }
                                                         }}
                                                     >
                                                         <i className="fas fa-edit"></i>
                                                     </button>
-                                                    {/* <button type="button" className="btn btn-tool" data-card-widget="collapse">
-                                                        <i className="fas fa-plus"></i>
-                                                    </button> */}
                                                 </div>
                                             </div>
                                             <div className="card-body">
+                                                {/* Validación y conversión del nivel de idioma */}
+                                                <p>
+                                                    {(() => {
+                                                        switch (record.level) {
+                                                            case 1:
+                                                                return 'Nivel principiante';
+                                                            case 2:
+                                                                return 'Nivel básico';
+                                                            case 3:
+                                                                return 'Nivel intermedio';
+                                                            case 4:
+                                                                return 'Avanzado';
+                                                            case 5:
+                                                                return 'Muy avanzado';
+                                                            default:
+                                                                return 'Nivel desconocido';
+                                                        }
+                                                    })()}
+                                                </p>
                                             </div>
                                         </div>
                                     ) : null
@@ -454,7 +502,7 @@ const SkillsCV = () => {
                                                     editable={true}
                                                     {...userDataFromSections} //pasar todos los datos como propiedades
                                                     {...formData}
-                                                    skillsRecords={skillRecords}
+                                                    languageRecords={languageRecords}
                                                 />
                                             ) : (
                                                 <p>No se ha seleccionado ninguna plantilla.</p>
@@ -480,4 +528,4 @@ const SkillsCV = () => {
     )
 }
 
-export default SkillsCV
+export default LanguagesCV

@@ -62,7 +62,7 @@ export const uploadFile = async (file, username) => {
 
     return response;
 };
-
+// INFORMACION PERSONAL
 //guarda la informacion de los datos personales
 export const guardarencabezadocv = async (data) => {
     const url = "/cv/userinformation";
@@ -70,6 +70,7 @@ export const guardarencabezadocv = async (data) => {
     return response;
 };
 
+//INFORMACION ACADEMICA
 //guarda la informacion academica
 export const  guardareducacion = async(data) => {
     const url = "/cv/user-education";
@@ -91,6 +92,7 @@ export const eliminarEducacion = async(id) => {
     return response;
 }
 
+//EXPERIENCIA LABORAL
 //agrega experiencia laboral
 export const guardarExperiencia = async(data) => {
     const url = "/cv/userwork-experience";
@@ -112,6 +114,7 @@ export const eliminarExperiencia = async(id) => {
     return response;
 }
 
+//COMPETENCIAS/APTITUDES
 //guarda las competencias
 export const guardarCompetencia = async(data) => {
     const url = "/cv/user-skills";
@@ -119,14 +122,38 @@ export const guardarCompetencia = async(data) => {
     return response;
 }
 
+//actualiza las competencias del usuario
 export const actualizarCompetencia = async(data) => {
     const url = "/cv/update-user-skills"
     const response = await axiosInstance.put(url, data)
     return response;
 }
 
+//elimina las competencias del usuario
 export const eliminarCompetencia = async(id) => {
     const url = "/cv/delete-user-skills/";
     const response = await axiosInstance.delete(url + id);
+    return response
+}
+
+//LENGUAJES
+//guarda los idiomas del usuario
+export const guardaLenguaje = async(data) => {
+    const url = "/cv/user-languages";
+    const response = await axiosInstance.post(url, data)
+    return response
+}
+
+//actualiza los idiomas del usuario
+export const actualizaLenguaje = async(data) => {
+    const url = "/cv/update-user-languages";
+    const response = await axiosInstance.put(url, data);
+    return response;
+}
+
+//elimina los idiomas del usuario
+export const eliminarLenguaje = async(id) => {
+    const url = "/cv/delete-user-languages/";
+    const response = await axiosInstance.delete(url + id)
     return response
 }

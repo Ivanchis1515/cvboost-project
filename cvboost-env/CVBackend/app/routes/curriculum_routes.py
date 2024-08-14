@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, status #enrutador, excepcioneshhtp
 from fastapi.responses import JSONResponse #respuestasjson
 from app.database_config import get_database_connection #configuracion de bd
 ##importaciones complemento
-from app.models.curriculums_model import CVUserCreate, UserInformationCreate, UserSectionRequest, UserEducationCreate, UserWorkExperienceCreate, UserSkills
+from app.models.curriculums_model import CVUserCreate, UserInformationCreate, UserSectionRequest, UserEducationCreate, UserWorkExperienceCreate, UserSkills, UserLanguages
 import json
 
 # Inicializa el enrutador de FastAPI
@@ -713,6 +713,161 @@ def delete_user_skills(id: int):
 
     except Exception as err:
         print(f"Error: {err}")  #depuracion
+        raise HTTPException(status_code=500, detail=f"Database error: {err}")
+    finally:
+        cursor.close()
+        connection.close()
+
+#USUARIO IDIOMAS
+#ruta para crear un idioma
+@router.post("/user-languages")
+def create_user_languages(user_languages: UserLanguages):
+    connection = get_database_connection() #obtener la conexion de la base de datos
+    cursor = connection.cursor() #obtener el cursos
+
+    try:
+        #insertar datos en la tabla userlanguages
+        insert_query = """
+            INSERT INTO userlanguages (user_id, cvid_user_template, language, level)
+            VALUES (%s, %s, %s, %s)
+        """
+        cursor.execute(insert_query, (
+            user_languages.user_id,
+            user_languages.cvid_user_template,
+            user_languages.language,
+            user_languages.level
+        ))
+        connection.commit() #ejecuta la consulta
+
+        #obtener el ID de la ultima fila insertada
+        inserted_id = cursor.lastrowid
+
+        #consultar el registro insertado
+        select_query = "SELECT * FROM userlanguages WHERE id = %s"
+        cursor.execute(select_query, (inserted_id,)) #ejecuta la consulta
+        new_record = cursor.fetchone() #selecciona el registro
+
+        #convertir el registro a un formato adecuado para la respuesta JSON
+        if new_record:
+            new_record = {
+                "id": new_record[0],
+                "user_id": new_record[1],
+                "cvid_user_template": new_record[2],
+                "language": new_record[3],
+                "level": new_record[4]
+            }
+
+        #enviar una respuesta al servidor
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "message": "Idioma agregado exitosamente",
+                "content": new_record
+            }
+        )
+
+    except Exception as err:
+        print(f"Error: {err}") #depuracion
+        raise HTTPException(status_code=500, detail=f"Database error: {err}")
+    finally:
+        cursor.close()
+        connection.close()
+
+#actualiza los idiomas del usuario
+@router.put("/update-user-languages")
+def update_user_languages(user_languages: UserLanguages):
+    connection = get_database_connection() #obten la conexion a la base de datos
+    cursor = connection.cursor() #obten el cursor
+
+    try:
+        #consultar si el registro existe
+        select_query = "SELECT * FROM userlanguages WHERE id = %s"
+        cursor.execute(select_query, (user_languages.id,))
+        existing_record = cursor.fetchone()
+
+        if not existing_record:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Registro no encontrado")
+
+        #actualizar datos en la tabla userlanguages
+        update_query = """
+            UPDATE userlanguages
+            SET 
+                user_id = %s,
+                cvid_user_template = %s,
+                language = %s,
+                level = %s
+            WHERE id = %s
+        """
+        cursor.execute(update_query, (
+            user_languages.user_id,
+            user_languages.cvid_user_template,
+            user_languages.language,
+            user_languages.level,
+            user_languages.id
+        ))
+        connection.commit() #realiza la actualizacion
+
+        #consultar el registro actualizado
+        select_query = "SELECT * FROM userlanguages WHERE id = %s"
+        cursor.execute(select_query, (user_languages.id,)) #ejecuta la consulta
+        updated_record = cursor.fetchone()
+
+        #convertir el registro a un formato adecuado para la respuesta JSON
+        if updated_record:
+            updated_record = {
+                "id": updated_record[0],
+                "user_id": updated_record[1],
+                "cvid_user_template": updated_record[2],
+                "language": updated_record[3],
+                "level": updated_record[4]
+            }
+
+        #envia una respuesta
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "message": "Idioma actualizado exitosamente",
+                "content": updated_record
+            }
+        )
+
+    except Exception as err:
+        print(f"Error: {err}") #depuracion
+        raise HTTPException(status_code=500, detail=f"Database error: {err}")
+    finally:
+        cursor.close()
+        connection.close()
+
+#eliminar los lenguajes del usuario
+@router.delete("/delete-user-languages/{id}")
+def delete_user_languages(id: int):
+    connection = get_database_connection() #obtener la conexion a la base de datos
+    cursor = connection.cursor() #obtener el cursor
+
+    try:
+        #consultar si el registro existe
+        select_query = "SELECT * FROM userlanguages WHERE id = %s"
+        cursor.execute(select_query, (id,)) #ejecuta la consulta
+        existing_record = cursor.fetchone() #selecciona el primer registro
+
+        if not existing_record:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Registro no encontrado")
+
+        #eliminar el registro
+        delete_query = "DELETE FROM userlanguages WHERE id = %s"
+        cursor.execute(delete_query, (id,)) #ejecuta la consulta
+        connection.commit() 
+
+        #envia una respuesta
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "message": "Idioma eliminado exitosamente"
+            }
+        )
+
+    except Exception as err:
+        print(f"Error: {err}") #depuracion 
         raise HTTPException(status_code=500, detail=f"Database error: {err}")
     finally:
         cursor.close()

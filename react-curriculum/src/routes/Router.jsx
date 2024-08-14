@@ -15,6 +15,7 @@ import HeaderCV from '../pages/create-cv/sections/HeaderCV';
 import StudiesCV from '../pages/create-cv/sections/StudiesCV';
 import WorkhistoryCV from '../pages/create-cv/sections/WorkhistoryCV';
 import SkillsCV from '../pages/create-cv/sections/SkillsCV';
+import LanguagesCV from '../pages/create-cv/sections/LanguagesCV';
 import Counter from '../pages/example/Counter';
 
 
@@ -33,6 +34,7 @@ const Router = () => {
                     <Route path='/create-csv/section/studies' element={ <StudiesCV /> } />
                     <Route path='/create-csv/section/workhistory' element={ <WorkhistoryCV /> } />
                     <Route path='/create-csv/section/skills' element={ <SkillsCV /> } />
+                    <Route path='/create-csv/section/languages' element={ <LanguagesCV /> } />
                     <Route path='/Counter' element={ <Counter /> } />
                 </Routes>
             </BrowserRouter>

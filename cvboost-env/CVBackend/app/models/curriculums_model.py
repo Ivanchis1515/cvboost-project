@@ -63,3 +63,11 @@ class UserSkills(BaseModel):
     user_id: Optional[int]
     cvid_user_template: Optional[int]
     skill: Optional[str]
+
+#modelo para guardar idiomas
+class UserLanguages(BaseModel):
+    id: Optional[int] = None
+    user_id: Optional[int]
+    cvid_user_template: Optional[int]
+    language: Optional[str]
+    level: Optional[int] = None

@@ -38,7 +38,9 @@ const CurriculumV = ({
     Workactivities,
     workRecords,
     skills, //aptitudes
-    skillsRecords
+    skillsRecords,
+    languages,//lenguajes
+    languageRecords
 }) => {
     const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 }); //mover y guardar la posicion de la imagen
     //funcion para determinar si el color es claro
@@ -59,6 +61,24 @@ const CurriculumV = ({
             return (typeof value === 'string' && value.trim() !== "") ? value : defaultValue;
         } else {
             return defaultValue;
+        }
+    };
+
+    //funcion para obtener el texto del nivel basado en el valor del slider
+    const getLevelText = (value) => {
+        switch (value) {
+            case 1:
+                return 'Principiante';
+            case 2:
+                return 'Básico';
+            case 3:
+                return 'Intermedio';
+            case 4:
+                return 'Avanzado';
+            case 5:
+                return 'Muy avanzado';
+            default:
+                return '';
         }
     };
 
@@ -119,7 +139,7 @@ const CurriculumV = ({
                                     </li>
                                 ))
                             ) : (
-                                <li></li>
+                                <li>Trabajo en equipo</li>
                             )}
                             {skillsRecords && skillsRecords.length > 0 ? (
                                 skillsRecords.map((record, index) => (
@@ -128,9 +148,66 @@ const CurriculumV = ({
                                     </li>
                                 ))
                             ) : (
-                                <li></li>
+                                <li>Liderazgo</li>
                             )}
                         </ul>
+                        <h5 className="text-center" style={{ color: textColor }}>Idiomas</h5>
+                        <div className="container">
+                            <div className="row">
+                                {languages && languages.length > 0 ? (
+                                    languages.map((record, index) => (
+                                        <div className="col-12 mb-3 ml-1" key={index}>
+                                            <div className="d-flex justify-content-between align-items-center bg-light p-1 rounded elevation-3">
+                                                <span className="font-weight-bold">{record.name}</span>
+                                                <span>{getLevelText(record.level)}</span>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="col-12 text-center">
+                                        <div className="d-flex justify-content-between align-items-center bg-light p-1 rounded elevation-3">
+                                            <span className="font-weight-bold">Español</span>
+                                            <span>Avanzado</span>
+                                        </div>
+                                    </div>
+                                )}
+                                {/* Mostrar contenido de languageRecords */}
+                                {languageRecords && languageRecords.length > 0 ? (
+                                    languageRecords.map((record, index) => (
+                                        <div className="col-12 mb-3 ml-1" key={index}>
+                                            <div className="d-flex justify-content-between align-items-center bg-light p-1 rounded elevation-3">
+                                                <span className="font-weight-bold">
+                                                    {record.language} - 
+                                                    {(() => {
+                                                        switch (record.level) {
+                                                            case 1:
+                                                                return 'Nivel principiante';
+                                                            case 2:
+                                                                return 'Nivel básico';
+                                                            case 3:
+                                                                return 'Nivel intermedio';
+                                                            case 4:
+                                                                return 'Avanzado';
+                                                            case 5:
+                                                                return 'Muy avanzado';
+                                                            default:
+                                                                return 'Nivel desconocido';
+                                                        }
+                                                    })()}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="col-12 text-center ml-1">
+                                        <div className="d-flex justify-content-between align-items-center bg-light p-1 rounded elevation-3">
+                                            <span className="font-weight-bold">Español</span>
+                                            <span>Avanzado</span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
 
                     {/* Columna Derecha */}
