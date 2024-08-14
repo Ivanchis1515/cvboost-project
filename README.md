@@ -85,10 +85,11 @@ Activación del entorno virtual en Windows, ejecuta: fastapi-env\Scripts\activat
 Activación del entorno virtual en Unix o MacOS, ejecuta: source fastapi-env/bin/activate
 ```
 2. **Clona el repositorio:**
-   ```bash
-   git clone CVBackend
-   cd <NOMBRE_DEL_REPOSITORIO>
-   ```
+```
+bash
+git clone CVBackend
+cd <NOMBRE_DEL_REPOSITORIO>
+```  
 3. **Instala las dependencias**
 ```
 pip install -r requirements.txt
@@ -106,6 +107,7 @@ npm run dev
 6. **Ejecucion de pruebas test suite**
 ```
 npm run test
+
 ```
 
 
