@@ -83,11 +83,18 @@ El diseño de la plataforma está pensado para ser intuitivo y accesible, facili
 - Gestión de contenido para organizar y estructurar la información de manera lógica y atractiva.
 
 
-Testing y Calidad:
+### Pruebas de Testing 
+- Se realizaron pruebas de testing para asegurarse de que el proyecto funcione correctamente.
+- Se utilizó un test suite que cubre todas las funcionalidades del proyecto.
+- Para ejecutar las pruebas, se debe correr el comando 
 
 
-- Conocimiento en pruebas unitarias y de integración para asegurar que todas las funcionalidades del CV funcionan correctamente.
-- Experiencia en test de usabilidad para evaluar la experiencia del usuario final.
+npm run test 
+
+
+- En la terminal, estando en la carpeta del proyecto.
+
+
 
 
 Consideraciones de Seguridad:
@@ -221,12 +228,44 @@ Copiar código
 ## Típos de Pruebas:
 
 
-- Pruebas Unitarias: Validar funciones individuales y componentes del código.
-- Pruebas de Integración: Asegurar que los diferentes módulos y servicios interactúan correctamente.
-- Pruebas Funcionales: Verificar que el sistema cumple con los requisitos funcionales.
-- Pruebas de Usabilidad: Evaluar la experiencia del usuario en diferentes dispositivos.
-- Pruebas de Seguridad: Verificar la protección de datos y la integridad del sistema.
-- Pruebas de Rendimiento: Evaluar la velocidad, capacidad de respuesta y estabilidad del sistema.
+Pruebas unitarias
+
+
+
+- Verificar que la función de carga de archivos adjuntos funcione correctamente.
+- Comprobar que la validación de campos obligatorios (nombre,etc.) se realice correctamente.
+- Probar que la función de autocompletado de habilidades o experiencia laboral funcione correctamente.
+
+
+
+
+
+Pruebas de integración
+
+
+
+- Verificar que la integración con bases de datos externas funcione correctamente.
+- Comprobar que la sincronización de datos entre diferentes secciones del CV se realice correctamente.
+- Probar que la función de generación de PDF de la impresión del CV funcione correctamente.
+
+
+
+Pruebas de sistema
+
+
+
+- Verificar que el sistema permita a los usuarios registrarse y iniciar sesión correctamente.
+- Comprobar que el sistema permita a los usuarios crear, editar y eliminar CVs correctamente.
+- Probar que el sistema permita seleccionar diferente plantilla de acuerdo a su preferencia.
+
+
+
+Pruebas de aceptación
+
+- Verificar que el sistema cumpla con los requisitos de usabilidad y accesibilidad.
+- Comprobar que el sistema permita a los usuarios visualizar y descargar CV 
+
+
 
 
 ## Lecciónes Aprendidas
