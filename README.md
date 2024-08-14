@@ -93,11 +93,21 @@ Activación del entorno virtual en Unix o MacOS, ejecuta: source fastapi-env/bin
 ```
 pip install -r requirements.txt
 ```
-4. **Ejecuta el proyecto**
+4. **Ejecucion del backend del proyecto**
 ```
 cd CVBackend
 python start.py
 ```
+5. **Ejecucion del proyecto**
+```
+cd react-curriculumn
+npm run dev
+```
+6. **Ejecucion de pruebas test suite**
+```
+npm run test
+```
+
 
 ## Configuración del Servidor
 El archivo start.py se encarga de iniciar el servidor Uvicorn con la configuración especificada en server_config.py. Puedes ajustar la configuración del servidor, como el host, el puerto y el modo de recarga, directamente en server_config.py.
@@ -203,21 +213,6 @@ Copiar código
 - **Uvicorn**:Mejor enfoque en la simplicidad, rendimiento y escalabilidad.
 Copiar código
 - uvicorn main:app --reload
-
-
-
-# Pruebas de Testing
-
-Esto indica que:
-
-- Se realizaron pruebas de testing para asegurarse de que el proyecto funcione correctamente.
-- Se utilizó un test suite que cubre todas las funcionalidades del proyecto.
-- Para ejecutar las pruebas, se debe correr el comando  en la terminal, estando en la carpeta del proyecto.
-
-
-
- npm run test 
-
 
  
 
