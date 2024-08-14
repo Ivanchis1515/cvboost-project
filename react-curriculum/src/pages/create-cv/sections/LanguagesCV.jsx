@@ -62,7 +62,7 @@ const LanguagesCV = () => {
         e.preventDefault();
 
         //navegar a la siguiente seccion
-        // navigate('/create-csv/section/languages');
+        navigate('/create-csv/finish');
     };
 
     //funcion para agregar registro
@@ -404,7 +404,7 @@ const LanguagesCV = () => {
                                                 Agregar Aptitudes
                                             </button>
                                         )}
-                                        <Link to="/create-csv/section/workhistory" className="btn btn-secondary justify-content-between">
+                                        <Link to="/create-csv/section/skills" className="btn btn-secondary justify-content-between">
                                             Regresar
                                         </Link>
                                     </div>

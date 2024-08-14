@@ -12,7 +12,7 @@ const AsideBarOr = ({ completedSections, activeSection, userData }) => {
         { alias: "workhistory", name: "3. Historia laboral", route: "/create-csv/section/workhistory" },
         { alias: "skills", name: "4. Competencias", route: "/create-csv/section/skills" },
         { alias: "languages", name: "5. Idiomas", route: "/create-csv/section/languages" },
-        { alias: "finish", name: "6. Finalizar", route: "/create-csv/studies" }
+        { alias: "finish", name: "6. Finalizar", route: "/create-csv/finish" }
     ];
     //convertir el objeto de completedSections en un array de aliases completados
     const completedSectionAliases = Object.keys(completedSections).filter(alias => completedSections[alias]);

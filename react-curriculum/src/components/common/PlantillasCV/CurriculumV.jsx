@@ -27,7 +27,7 @@ const CurriculumV = ({
     startDate,
     endDate,
     currentlyStudying,
-    educationRecords,
+    educationRecords, //array de objetos de educacion
     position, //datos laborales
     company,
     workCity,
@@ -36,11 +36,11 @@ const CurriculumV = ({
     workEndDate,
     currentlyWorking,
     Workactivities,
-    workRecords,
+    workRecords, //array de objetos de experiencia laboral
     skills, //aptitudes
-    skillsRecords,
+    skillsRecords, //array de objetos de aptitudes de usuario
     languages,//lenguajes
-    languageRecords
+    languageRecords //array de objetos de lenguajes
 }) => {
     const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 }); //mover y guardar la posicion de la imagen
     //funcion para determinar si el color es claro
@@ -132,15 +132,6 @@ const CurriculumV = ({
 
                         <h5 className="text-center" style={{ color: textColor }}>Aptitudes</h5>
                         <ul style={{ color: textColor }}>
-                            {skills && skills.length > 0 ? (
-                                skills.map((skill, index) => (
-                                    <li key={index}>
-                                        {getDisplayValue(skill.name, "liderazgo")}
-                                    </li>
-                                ))
-                            ) : (
-                                <li>Trabajo en equipo</li>
-                            )}
                             {skillsRecords && skillsRecords.length > 0 ? (
                                 skillsRecords.map((record, index) => (
                                     <li key={index}>
@@ -148,63 +139,60 @@ const CurriculumV = ({
                                     </li>
                                 ))
                             ) : (
-                                <li>Liderazgo</li>
+                                skills && skills.length > 0 ? (
+                                    skills.map((skill, index) => (
+                                        <li key={index}>
+                                            {getDisplayValue(skill.name, "liderazgo")}
+                                        </li>
+                                    ))
+                                ) : (
+                                    <>
+                                        <li>Liderazgo</li>
+                                        <li>Trabajo en equipo</li>
+                                        <li>Responsable</li>
+                                        <li>Ágil</li>
+                                    </>
+                                )
                             )}
                         </ul>
                         <h5 className="text-center" style={{ color: textColor }}>Idiomas</h5>
                         <div className="container">
                             <div className="row">
-                                {languages && languages.length > 0 ? (
-                                    languages.map((record, index) => (
+                                {languageRecords && languageRecords.length > 0 ? (
+                                    languageRecords.map((record, index) => (
                                         <div className="col-12 mb-3 ml-1" key={index}>
                                             <div className="d-flex justify-content-between align-items-center bg-light p-1 rounded elevation-3">
-                                                <span className="font-weight-bold">{record.name}</span>
+                                                <span className="font-weight-bold">{record.language}</span>
                                                 <span>{getLevelText(record.level)}</span>
                                             </div>
                                         </div>
                                     ))
                                 ) : (
-                                    <div className="col-12 text-center">
-                                        <div className="d-flex justify-content-between align-items-center bg-light p-1 rounded elevation-3">
-                                            <span className="font-weight-bold">Español</span>
-                                            <span>Avanzado</span>
-                                        </div>
-                                    </div>
-                                )}
-                                {/* Mostrar contenido de languageRecords */}
-                                {languageRecords && languageRecords.length > 0 ? (
-                                    languageRecords.map((record, index) => (
-                                        <div className="col-12 mb-3 ml-1" key={index}>
-                                            <div className="d-flex justify-content-between align-items-center bg-light p-1 rounded elevation-3">
-                                                <span className="font-weight-bold">
-                                                    {record.language} - 
-                                                    {(() => {
-                                                        switch (record.level) {
-                                                            case 1:
-                                                                return 'Nivel principiante';
-                                                            case 2:
-                                                                return 'Nivel básico';
-                                                            case 3:
-                                                                return 'Nivel intermedio';
-                                                            case 4:
-                                                                return 'Avanzado';
-                                                            case 5:
-                                                                return 'Muy avanzado';
-                                                            default:
-                                                                return 'Nivel desconocido';
-                                                        }
-                                                    })()}
-                                                </span>
+                                    languages && languages.length > 0 ? (
+                                        languages.map((record, index) => (
+                                            <div className="col-12 mb-3 ml-1" key={index}>
+                                                <div className="d-flex justify-content-between align-items-center bg-light p-1 rounded elevation-3">
+                                                    <span className="font-weight-bold">{record.name}</span>
+                                                    <span>{getLevelText(record.level)}</span>
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="col-12 text-center ml-1">
-                                        <div className="d-flex justify-content-between align-items-center bg-light p-1 rounded elevation-3">
-                                            <span className="font-weight-bold">Español</span>
-                                            <span>Avanzado</span>
-                                        </div>
-                                    </div>
+                                        ))
+                                    ) : (
+                                        <>
+                                            <div className="col-12 text-center ml-1 mb-1">
+                                                <div className="d-flex justify-content-between align-items-center bg-light p-1 rounded elevation-3">
+                                                    <span className="font-weight-bold">Francés</span>
+                                                    <span>Intermedio</span>
+                                                </div>
+                                            </div>
+                                            <div className="col-12 text-center ml-1 mb-1">
+                                                <div className="d-flex justify-content-between align-items-center bg-light p-1 rounded elevation-3">
+                                                    <span className="font-weight-bold">Inglés</span>
+                                                    <span>Avanzado</span>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )
                                 )}
                             </div>
                         </div>
@@ -228,11 +216,7 @@ const CurriculumV = ({
                                     <h3 className="timeline-header" style={{ color: color }}>Formación</h3>
                                     <div className="timeline-body">
                                         {/* Aqui debe de aparecer la informacion que el usuario agrega en tiempo real y la informacion que ya agrego anteriormente */}
-                                        <p>
-                                            <strong>{getDisplayValue(certification, "Licenciatura en Contabilidad")}</strong><br />
-                                            <strong>Universidad:</strong> {getDisplayValue(school, "Universidad Alta Pinta")}, {getDisplayValue(citySchool, "Seul")} {getDisplayValue(startDate, "2010")} - {currentlyStudying ? "Actualmente estudiando" : getDisplayValue(endDate, "2014")}<br />
-                                            <strong>Campo de estudio:</strong> {getDisplayValue(fieldOfStudy, "Contabilidad")}
-                                        </p>
+
                                         {educationRecords && educationRecords.length > 0 ? (
                                             educationRecords.map((record, index) => (
                                                 <div key={index}>
@@ -244,7 +228,13 @@ const CurriculumV = ({
                                                 </div>
                                             ))
                                         ) : (
-                                            <p></p>
+                                            <>
+                                                <p>
+                                                    <strong>{getDisplayValue(certification, "Licenciatura en Contabilidad")}</strong><br />
+                                                    <strong>Universidad:</strong> {getDisplayValue(school, "Universidad Alta Pinta")}, {getDisplayValue(citySchool, "Seul")} {getDisplayValue(startDate, "2010")} - {currentlyStudying ? "Actualmente estudiando" : getDisplayValue(endDate, "2014")}<br />
+                                                    <strong>Campo de estudio:</strong> {getDisplayValue(fieldOfStudy, "Contabilidad")}
+                                                </p>
+                                            </>
                                         )}
                                     </div>
                                 </div>
@@ -256,25 +246,12 @@ const CurriculumV = ({
                                 <div className="timeline-item">
                                     <h3 className="timeline-header no-border" style={{ color: color }}>Historial Laboral</h3>
                                     <div className="timeline-body">
-                                        <div className="mb-1">
-                                            <p className="h6"><strong>{getDisplayValue(company, "SuperSu")} - {getDisplayValue(position, "Área de contabilidad")}</strong> {getDisplayValue(workCity, "Celaya")}, {getDisplayValue(workMunicipality, "Seúl")}</p>
-                                            <strong>Fecha:</strong> {getDisplayValue(workStartDate, "2010")} - {currentlyWorking ? "Actualmente" : getDisplayValue(workEndDate, "2012")}
-                                            <ul>
-                                                {Workactivities && Workactivities.length > 0 ? (
-                                                    Workactivities.map((activity, index) => (
-                                                        <li key={index}>{activity || 'Eu augue ut lectus arcu bibendum at varius vel pharetra vel turpis nunc eget lorem dolor sed viverra ipsum nunc.'}</li>
-                                                    ))
-                                                ) : (
-                                                    <li></li>
-                                                )}
-                                            </ul>
-                                        </div>
                                         {/* Mostrar los registros laborales guardados */}
                                         {workRecords && workRecords.length > 0 ? (
                                             workRecords.map((record, index) => (
                                                 <div key={index}>
                                                     <p className="h6">
-                                                        <strong>{record.position}</strong> {record.company}, {record.city}, {record.municipality}
+                                                        <strong>{record.position}</strong> - {record.company}, {record.city}, {record.municipality}
                                                     </p>
                                                     <strong>Fecha:</strong> {record.startDate} - {record.currentlyWorking ? "Actualmente trabajando aquí" : record.endDate}
                                                     <ul>
@@ -289,7 +266,21 @@ const CurriculumV = ({
                                                 </div>
                                             ))
                                         ) : (
-                                            <p></p>
+                                            <>
+                                                <div className="mb-1">
+                                                    <p className="h6"><strong>{getDisplayValue(company, "SuperSu")} - {getDisplayValue(position, "Área de contabilidad")}</strong> {getDisplayValue(workCity, "Celaya")}, {getDisplayValue(workMunicipality, "Seúl")}</p>
+                                                    <strong>Fecha:</strong> {getDisplayValue(workStartDate, "2010")} - {currentlyWorking ? "Actualmente" : getDisplayValue(workEndDate, "2012")}
+                                                    <ul>
+                                                        {Workactivities && Workactivities.length > 0 ? (
+                                                            Workactivities.map((activity, index) => (
+                                                                <li key={index}>{activity || 'Eu augue ut lectus arcu bibendum at varius vel pharetra vel turpis nunc eget lorem dolor sed viverra ipsum nunc.'}</li>
+                                                            ))
+                                                        ) : (
+                                                            <li>asdasd</li>
+                                                        )}
+                                                    </ul>
+                                                </div>
+                                            </>
                                         )}
                                     </div>
                                 </div>

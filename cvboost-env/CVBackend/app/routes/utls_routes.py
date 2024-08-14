@@ -48,6 +48,8 @@ async def upload_file(request: Request, file: UploadFile = File(None)):
 async def get_photo(filename: str):
     file_path = os.path.join(UPLOAD_DIRECTORY, filename)
     if os.path.exists(file_path):
-        return FileResponse(file_path)
+        headers = {"Access-Control-Allow-Origin": "http://localhost:5173"}
+        return FileResponse(file_path, headers=headers)
+
     else:
         raise HTTPException(status_code=404, detail="Photo not found")

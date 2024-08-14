@@ -5,6 +5,7 @@ from app.database_config import get_database_connection #configuracion de bd
 ##importaciones complemento
 from app.models.curriculums_model import CVUserCreate, UserInformationCreate, UserSectionRequest, UserEducationCreate, UserWorkExperienceCreate, UserSkills, UserLanguages
 import json
+from datetime import date
 
 # Inicializa el enrutador de FastAPI
 router = APIRouter()
@@ -869,6 +870,147 @@ def delete_user_languages(id: int):
     except Exception as err:
         print(f"Error: {err}") #depuracion 
         raise HTTPException(status_code=500, detail=f"Database error: {err}")
+    finally:
+        cursor.close()
+        connection.close()
+
+#USUARIO INFORMACION CV
+#obtener la informacion de las secciones
+@router.get("/get-cv-data/{cvid_user_template}")
+def get_cv_data(cvid_user_template: int):
+    connection = get_database_connection()
+    cursor = connection.cursor()
+
+    try:
+        # Consultar datos de la tabla cvuser
+        cursor.execute("SELECT * FROM cvuser WHERE id = %s", (cvid_user_template,))
+        cv_user_data = cursor.fetchone()
+
+        # Consultar información personal
+        cursor.execute("SELECT * FROM userinformation WHERE cvid_user_template = %s", (cvid_user_template,))
+        user_info = cursor.fetchone()
+
+        # Consultar educación
+        cursor.execute("SELECT * FROM usereducation WHERE cvid_user_template = %s", (cvid_user_template,))
+        user_education = cursor.fetchall()
+
+        # Consultar experiencia laboral
+        cursor.execute("SELECT * FROM userwork_experience WHERE cvid_user_template = %s", (cvid_user_template,))
+        user_work_experience = cursor.fetchall()
+
+        # Consultar aptitudes
+        cursor.execute("SELECT * FROM user_skills WHERE cvid_user_template = %s", (cvid_user_template,))
+        user_skills = cursor.fetchall()
+
+        # Consultar lenguajes
+        cursor.execute("SELECT * FROM userlanguages WHERE cvid_user_template = %s", (cvid_user_template,))
+        user_languages = cursor.fetchall()
+
+        # Serializar los resultados manualmente para las columnas datetime
+        def serialize_cv_user_data(cv_user_data):
+            if cv_user_data:
+                return {
+                    "id": cv_user_data[0],
+                    "user_id": cv_user_data[1],
+                    "cv_id": cv_user_data[2],
+                    "template_name": cv_user_data[3],
+                    "color": cv_user_data[4],
+                    "created_at": cv_user_data[5].strftime("%Y-%m-%d %H:%M:%S") if cv_user_data[5] else None,
+                    "updated_at": cv_user_data[6].strftime("%Y-%m-%d %H:%M:%S") if cv_user_data[6] else None
+                }
+            return None
+
+        def serialize_user_info(user_info):
+            if user_info:
+                return {
+                    "id": user_info[0],
+                    "cvid_user_template": user_info[1],
+                    "id_user": user_info[2],
+                    "name": user_info[3],
+                    "surname": user_info[4],
+                    "city": user_info[5],
+                    "municipality": user_info[6],
+                    "address": user_info[7],
+                    "colony": user_info[8],
+                    "postal_code": user_info[9],
+                    "phone": user_info[10],
+                    "email": user_info[11],
+                    "photo": user_info[12]
+                }
+            return None
+
+        def serialize_user_education(education):
+            return {
+                "id": education[0],
+                "cvid_user_template": education[1],
+                "user_id": education[2],
+                "school": education[3],
+                "city_school": education[4],
+                "certification": education[5],
+                "field_of_study": education[6],
+                "start_date": education[7].strftime("%Y-%m-%d") if education[7] else None,
+                "end_date": education[8].strftime("%Y-%m-%d") if education[8] else None,
+                "currently_studying": education[9]
+            }
+
+        def serialize_user_work_experience(work):
+            return {
+                "id": work[0],
+                "user_id": work[1],
+                "cvid_user_template": work[2],
+                "position": work[3],
+                "company": work[4],
+                "work_city": work[5],
+                "work_municipality": work[6],
+                "work_start_date": work[7].strftime("%Y-%m-%d") if work[7] else None,
+                "work_end_date": work[8].strftime("%Y-%m-%d") if work[8] else None,
+                "currently_working": work[9],
+                "activities": work[10]
+            }
+
+        def serialize_user_skills(skills):
+            return {
+                "id": skills[0],
+                "user_id": skills[1],
+                "cvid_user_template": skills[2],
+                "skill_name": skills[3]
+            }
+
+        def serialize_user_languages(languages):
+            return {
+                "id": languages[0],
+                "user_id": languages[1],
+                "cvid_user_template": languages[2],
+                "language": languages[3],
+                "level": languages[4]
+            }
+
+        # Serializar todos los resultados
+        cv_user_data = serialize_cv_user_data(cv_user_data)
+        user_info = serialize_user_info(user_info)
+        user_education = [serialize_user_education(row) for row in user_education]
+        user_work_experience = [serialize_user_work_experience(row) for row in user_work_experience]
+        user_skills = [serialize_user_skills(row) for row in user_skills]
+        user_languages = [serialize_user_languages(row) for row in user_languages]
+
+        # Consolidar todos los datos en un solo objeto
+        cv_data = {
+            "cv_user_data": cv_user_data,
+            "user_info": user_info,
+            "user_education": user_education,
+            "user_work_experience": user_work_experience,
+            "user_skills": user_skills,
+            "user_languages": user_languages
+        }
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=cv_data
+        )
+
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail="Error al obtener datos del CV")
     finally:
         cursor.close()
         connection.close()

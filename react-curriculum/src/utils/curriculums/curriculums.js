@@ -157,3 +157,10 @@ export const eliminarLenguaje = async(id) => {
     const response = await axiosInstance.delete(url + id)
     return response
 }
+
+//LLENADO DE DATOS DEL CV
+export const obtenerData = async(id) => {
+    const url = "/cv/get-cv-data/";
+    const response = await axiosInstance.get(url + id)
+    return response;
+}
