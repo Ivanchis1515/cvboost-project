@@ -170,9 +170,6 @@ El archivo start.py se encarga de iniciar el servidor Uvicorn con la configuraci
 El proyecto está configurado para conectarse a una base de datos MySQL. Asegúrate de que MySQL esté instalado y funcionando. La configuración de la base de datos debe especificarse en config.py en la carpeta app.
 
 
-## Tutorial para el Usuario
-1. **Acceso a la API:** Una vez que el backend esté corriendo, puedes acceder a la documentación interactiva de la API en http://127.0.0.1:8000/docs o la alternativa en http://127.0.0.1:8000/redoc.
-
 
 ## Librerías 
 
