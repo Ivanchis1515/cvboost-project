@@ -162,30 +162,6 @@ El diseño de la plataforma está pensado para ser intuitivo y accesible, facili
 - **MySQL**: Base de datos relacionales que se pueden usar para almacenar información más estructurada.
 
 
-## Instalación
-1. **Crea y activa un entorno virtual:**
-```
-python -m venv <Nombreentorno-env>
-Activación del entorno virtual en Windows, ejecuta: fastapi-env\Scripts\activate
-Activación del entorno virtual en Unix o MacOS, ejecuta: source fastapi-env/bin/activate
-```
-2. **Clona el repositorio:**
-   ```bash
-   git clone CVBackend
-   cd <NOMBRE_DEL_REPOSITORIO>
-   ```
-3. **Instala las dependencias**
-```
-pip install -r requirements.txt
-```
-4. **Ejecuta el proyecto**
-```
-cd CVBackend
-python start.py
-```
-
-
-
 ## Configuración del Servidor
 El archivo start.py se encarga de iniciar el servidor Uvicorn con la configuración especificada en server_config.py. Puedes ajustar la configuración del servidor, como el host, el puerto y el modo de recarga, directamente en server_config.py.
 
@@ -289,9 +265,6 @@ Pruebas de aceptación
 - Comprobar que el sistema permita a los usuarios visualizar y descargar CV.
 
 
-##
-
-
 
 ## Lecciónes Aprendidas
 
@@ -308,7 +281,7 @@ El resultado se manifiesta no solo en la presentación profesional de mis habili
 ## Conclusión 
 
 
-El proyecto de CV digital representa una evolución significativa del currículum tradicional al proporcionar una plataforma interactiva y atractiva diseñada para desarrolladores de software. Esta herramienta no solo permite a los usuarios documentar y mostrar sus habilidades y logros de manera organizada, sino que también ofrece una experiencia personalizada e inmersiva, destacando sus fortalezas en un mercado laboral competitivo. Con una estructura optimizada y un diseño intuitivo, esta plataforma facilita la conexión entre desarrolladores y empleadores o clientes, abriendo nuevas oportunidades y retos en el mundo del desarrollo de software.
+El proyecto de CV  representa una evolución significativa del currículum tradicional al proporcionar una plataforma interactiva y atractiva diseñada para desarrolladores de software. Esta herramienta no solo permite a los usuarios documentar y mostrar sus habilidades y logros de manera organizada, sino que también ofrece una experiencia personalizada e inmersiva, destacando sus fortalezas en un mercado laboral competitivo. Con una estructura optimizada y un diseño intuitivo, esta plataforma facilita la conexión entre desarrolladores y empleadores o clientes, abriendo nuevas oportunidades y retos en el mundo del desarrollo de software.
 
 
 
