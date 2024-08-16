@@ -54,14 +54,13 @@ const LanguagesCV = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // //Verifica si el formulario tiene datos o si no hay datos en languageRecords
-        // const hasFormData = formData.languages.some(language => language.name.trim() !== '');
-        // const noLanguageRecords = languageRecords.length >= 0;
+        //Verifica si el formulario tiene datos o si no hay datos en languageRecords
+        const hasFormData = formData.languages.some(language => language.name.trim() !== '');
 
-        // if (hasFormData || noLanguageRecords) {
-        //     showInfoToast('Por favor, guarde sus datos para avanzar a la siguiente sección');
-        //     return;
-        // }
+        if (hasFormData) {
+            showInfoToast('Por favor, guarde sus datos para avanzar a la siguiente sección');
+            return;
+        }
 
         //navegar a la siguiente seccion
         navigate('/create-csv/finish');

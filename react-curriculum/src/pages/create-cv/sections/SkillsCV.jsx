@@ -55,9 +55,8 @@ const SkillsCV = () => {
         e.preventDefault();
         //verifica si hay datos en el formulario o si no hay datos en skillRecords
         const hasFormData = formData.skills.some(skill => skill.name.trim() !== '');
-        const noSkillRecords = skillRecords.length > 0;
 
-        if (hasFormData || noSkillRecords) {
+        if (hasFormData) {
             showInfoToast('Por favor, guarde sus datos para avanzar a la siguiente sección');
             return;
         }
