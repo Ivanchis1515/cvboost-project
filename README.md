@@ -151,6 +151,7 @@ El frontend de CvBoost es una aplicación desarrollada con React Vite, un entorn
 
 ## Estructura del proyecto React
 La estructura del proyecto front-end está organizada de la siguiente manera:
+```
 react-curriculum/
 ├── public/
 │ ├── dist/
@@ -242,6 +243,7 @@ react-curriculum/
 ├── package-lock.json
 ├── package.json
 ├── vite.config.js
+```
 
 ## public/
 En public contenemos la estructura de archivos y plugins necesarios para tener acceso a la plantilla Adminlte3:
