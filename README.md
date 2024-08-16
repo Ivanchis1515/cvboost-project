@@ -371,7 +371,7 @@ Esto debería iniciar el proyecto en modo desarrollo y abrirlo en tu navegador p
 
 ## Instalación de librerias para los test
 Este apartado cuenta unicamente como documentacion ya que al usar el comando de instalacion de dependencias
-`npm run dev` se instala en conjunto con el proyecto.
+`npm install` se instala en conjunto con el proyecto.
 Jest es un marco de pruebas de JavaScript diseñado para garantizar la corrección del código en aplicaciones grandes.
 1. Instalacion de jest
 ```
