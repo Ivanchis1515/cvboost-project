@@ -7,8 +7,10 @@ import User from '../../../assets/img/user.svg';
 const CurriculumV2 = ({
     color = "#17a2b8",
     editable = false,
-    name,
+    name, //datos personales
     surname,
+    ocupation,
+    personalDescription,
     city,
     municipality,
     address,
@@ -17,16 +19,29 @@ const CurriculumV2 = ({
     phone,
     email,
     photo,
-    school,
+    school, //datos academicos
     citySchool,
     certification,
     fieldOfStudy,
     startDate,
     endDate,
     currentlyStudying,
-    educationRecords
+    educationRecords, //array de objetos de educacion
+    position, //datos laborales
+    company,
+    workCity,
+    workMunicipality,
+    workStartDate,
+    workEndDate,
+    currentlyWorking,
+    Workactivities,
+    workRecords, //array de objetos de experiencia laboral
+    skills, //aptitudes
+    skillsRecords, //array de objetos de aptitudes de usuario
+    languages,//lenguajes
+    languageRecords //array de objetos de lenguajes
 }) => {
-    const [position, setPosition] = useState({ x: 0, y: 0 }); //mover y guardar la posicion de la imagen
+    const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 }); //mover y guardar la posicion de la imagen
     //funcion para obtener un color mas suave
     const lightenColor = (color, percent) => {
         let num = parseInt(color.replace("#", ""), 16),
@@ -64,13 +79,31 @@ const CurriculumV2 = ({
         }
     };
 
+    //funcion para obtener el texto del nivel basado en el valor del slider
+    const getLevelText = (value) => {
+        switch (value) {
+            case 1:
+                return 'Principiante';
+            case 2:
+                return 'Básico';
+            case 3:
+                return 'Intermedio';
+            case 4:
+                return 'Avanzado';
+            case 5:
+                return 'Muy avanzado';
+            default:
+                return '';
+        }
+    };
+
     return (
         <>
             <div className="card border-3 overflow-hidden">
 
                 <div className="row no-gutters align-items-center justify-content-center" style={{ backgroundColor: color === "" ? "#17a2b8" : lightColor }}>
                     {/* Columna izquierda */}
-                    <div className="col-md-4 col-sm-6" style={{ backgroundColor: color }}>
+                    <div className="col-md-4 col-sm-6 col-lg-4" style={{ backgroundColor: color }}>
                         <div className="text-center p-4">
                             {/* Fotografía */}
                             <div
@@ -88,9 +121,8 @@ const CurriculumV2 = ({
                                     className="img-fluid position-absolute"
                                     alt="Foto de perfil"
                                     style={{
-                                        cursor: editable ? 'pointer' : 'default',
-                                        top: `${position.y}px`,
-                                        left: `${position.x}px`
+                                        top: `${imagePosition.y}px`,
+                                        left: `${imagePosition.x}px`
                                     }}
                                 />
                             </div>
@@ -100,7 +132,8 @@ const CurriculumV2 = ({
                     <div className="col-md-8 col-sm-6 p-4">
                         <div style={{ color: textColor }}>
                             <h2 className="font-weight-bold">{getDisplayValue(name, "Lizandro")} {getDisplayValue(surname, "Pérez")}</h2>
-                            <p>Lic. en Contabilidad</p>
+                            <p className="lead">{getDisplayValue(ocupation, "Lic. en Contabilidad")}</p>
+                            {getDisplayValue(personalDescription, "Soy una persona dedicada, con muchas ganas de sobresalir")}
                         </div>
                     </div>
                 </div>
@@ -122,21 +155,79 @@ const CurriculumV2 = ({
                             <p>
                                 <i className="fas fa-envelope"></i> {getDisplayValue(email, "hola@sitioincreible.com")}
                             </p>
-                            <p>
+                            {/* <p>
                                 <i className="fas fa-globe"></i> www.sitioincreible.com
-                            </p>
+                            </p> */}
                         </div>
 
                         {/* Aptitudes */}
                         <h5 className="text-center" style={{ color: textColor }}>Aptitudes</h5>
                         <ul style={{ color: textColor }}>
-                            <li>Liderazgo</li>
-                            <li>Comunicación asertiva</li>
-                            <li>Gestión de activos</li>
-                            <li>Resolución de problemas</li>
-                            <li>Elaboración de reportes</li>
-                            <li>Trabajo en equipo</li>
+                            {skillsRecords && skillsRecords.length > 0 ? (
+                                skillsRecords.map((record, index) => (
+                                    <li key={index}>
+                                        {getDisplayValue(record.skill_name, "liderazgo")}
+                                    </li>
+                                ))
+                            ) : (
+                                skills && skills.length > 0 ? (
+                                    skills.map((skill, index) => (
+                                        <li key={index}>
+                                            {getDisplayValue(skill.name, "liderazgo")}
+                                        </li>
+                                    ))
+                                ) : (
+                                    <>
+                                        <li>Liderazgo</li>
+                                        <li>Trabajo en equipo</li>
+                                        <li>Responsable</li>
+                                        <li>Ágil</li>
+                                    </>
+                                )
+                            )}
                         </ul>
+
+                        <h5 className="text-center" style={{ color: textColor }}>Idiomas</h5>
+                        <div className="container">
+                            <div className="row">
+                                {languageRecords && languageRecords.length > 0 ? (
+                                    languageRecords.map((record, index) => (
+                                        <div className="col-12 mb-3 ml-0" key={index}>
+                                            <div className="d-flex justify-content-between align-items-center bg-light p-1 rounded elevation-3">
+                                                <span className="font-weight-bold">{record.language}</span>
+                                                <span>{getLevelText(record.level)}</span>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    languages && languages.length > 0 ? (
+                                        languages.map((record, index) => (
+                                            <div className="col-12 mb-3 ml-0" key={index}>
+                                                <div className="d-flex justify-content-between align-items-center bg-light p-1 rounded elevation-3">
+                                                    <span className="font-weight-bold">{record.name}</span>
+                                                    <span>{getLevelText(record.level)}</span>
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <>
+                                            <div className="col-12 text-center ml- mb-1">
+                                                <div className="d-flex justify-content-between align-items-center bg-light p-1 rounded elevation-3">
+                                                    <span className="font-weight-bold">Francés</span>
+                                                    <span>Intermedio</span>
+                                                </div>
+                                            </div>
+                                            <div className="col-12 text-center ml-0 mb-1">
+                                                <div className="d-flex justify-content-between align-items-center bg-light p-1 rounded elevation-3">
+                                                    <span className="font-weight-bold">Inglés</span>
+                                                    <span>Avanzado</span>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )
+                                )}
+                            </div>
+                        </div>
                     </div>
 
                     {/* Columna Derecha */}
@@ -144,13 +235,6 @@ const CurriculumV2 = ({
                         {/* Formación */}
                         <div className="">
                             <h5>Formación</h5>
-                            <p>
-                                {getDisplayValue(school, "Universidad Alta Pinta")}, {getDisplayValue(citySchool, "Seul")} {getDisplayValue(startDate, "2010")} - {currentlyStudying ? "Actualmente estudiando" : getDisplayValue(endDate, "2014")}<br />
-                                <span>
-                                    <strong>{getDisplayValue(certification, "Licenciatura en Contabilidad")}</strong><br />
-                                    <strong>Campo de estudio:</strong> {getDisplayValue(fieldOfStudy, "Contabilidad")}
-                                </span>
-                            </p>
                             {educationRecords && educationRecords.length > 0 ? (
                                 educationRecords.map((record, index) => (
                                     <div key={index}>
@@ -162,43 +246,55 @@ const CurriculumV2 = ({
                                     </div>
                                 ))
                             ) : (
-                                <p>No se han agregado registros de educación aún.</p>
+                                <>
+                                    <p>
+                                        <strong>{getDisplayValue(certification, "Licenciatura en Contabilidad")}</strong><br />
+                                        <strong>Universidad:</strong> {getDisplayValue(school, "Universidad Alta Pinta")}, {getDisplayValue(citySchool, "Seul")} {getDisplayValue(startDate, "2010")} - {currentlyStudying ? "Actualmente estudiando" : getDisplayValue(endDate, "2014")}<br />
+                                        <strong>Campo de estudio:</strong> {getDisplayValue(fieldOfStudy, "Contabilidad")}
+                                    </p>
+                                </>
                             )}
                         </div>
                         <hr />
                         {/* Historial Laboral */}
                         <div>
                             <h5>Historial Laboral</h5>
-                            <div className="ml-0">
-                                <p>
-                                    <strong>Área de contabilidad</strong><br />
-                                    Empresa Borcelle<br />
-                                    Fecha: 2010-2012
-                                </p>
-                                <ul>
-                                    <li>Eu augue ut lectus arcu bibendum at varius vel pharetra vel turpis nunc eget lorem dolor sed viverra ipsum nunc.</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <p>
-                                    <strong>Contador Supermercado</strong><br />
-                                    Empresa Borcelle<br />
-                                    Fecha: 2012-2014
-                                </p>
-                                <ul>
-                                    <li>Eu augue ut lectus arcu bibendum at varius vel pharetra vel turpis nunc eget lorem dolor sed viverra ipsum nunc.</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <p>
-                                    <strong>Auxiliar Contador</strong><br />
-                                    Empresa Borcelle<br />
-                                    Fecha: 2014-2016
-                                </p>
-                                <ul>
-                                    <li>Eu augue ut lectus arcu bibendum at varius vel pharetra vel turpis nunc eget lorem dolor sed viverra ipsum nunc.</li>
-                                </ul>
-                            </div>
+                            {/* Mostrar los registros laborales guardados */}
+                            {workRecords && workRecords.length > 0 ? (
+                                workRecords.map((record, index) => (
+                                    <div key={index}>
+                                        <p className="h6">
+                                            <strong>{record.position}</strong> - {record.company}, {record.city}, {record.municipality}
+                                        </p>
+                                        <strong>Fecha:</strong> {record.startDate} - {record.currentlyWorking ? "Actualmente trabajando aquí" : record.endDate}
+                                        <ul>
+                                            {record.activities && record.activities.length > 0 ? (
+                                                record.activities.map((activity, idx) => (
+                                                    <li key={idx}>{activity}</li>
+                                                ))
+                                            ) : (
+                                                <li></li>
+                                            )}
+                                        </ul>
+                                    </div>
+                                ))
+                            ) : (
+                                <>
+                                    <div className="mb-1">
+                                        <p className="h6"><strong>{getDisplayValue(company, "SuperSu")} - {getDisplayValue(position, "Área de contabilidad")}</strong> {getDisplayValue(workCity, "Celaya")}, {getDisplayValue(workMunicipality, "Seúl")}</p>
+                                        <strong>Fecha:</strong> {getDisplayValue(workStartDate, "2010")} - {currentlyWorking ? "Actualmente" : getDisplayValue(workEndDate, "2012")}
+                                        <ul>
+                                            {Workactivities && Workactivities.length > 0 ? (
+                                                Workactivities.map((activity, index) => (
+                                                    <li key={index}>{activity || 'Eu augue ut lectus arcu bibendum at varius vel pharetra vel turpis nunc eget lorem dolor sed viverra ipsum nunc.'}</li>
+                                                ))
+                                            ) : (
+                                                <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quod, voluptatum odio, excepturi autem ipsa eaque, libero quae officiis corrupti architecto pariatur? Maxime explicabo architecto quasi temporibus, eligendi at ab error.</li>
+                                            )}
+                                        </ul>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

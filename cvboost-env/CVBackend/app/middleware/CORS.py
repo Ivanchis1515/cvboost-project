@@ -4,7 +4,7 @@ from fastapi import FastAPI #importa fastapi
 def add_middleware(app: FastAPI):
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # Cambia "*" por los orígenes que desees permitir
+        allow_origins=["http://localhost:5173"],  # Cambia "*" por los orígenes que desees permitir
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

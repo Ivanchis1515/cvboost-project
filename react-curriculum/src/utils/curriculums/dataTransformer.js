@@ -1,37 +1,3 @@
-//funcion para transformar datos segun la tabla
-export const getTransformationFunction = (tableName) => {
-    switch (tableName) {
-        case 'userinformation':
-            return (data) => ({
-                name: data.name,
-                surname: data.surname,
-                city: data.city,
-                municipality: data.municipality,
-                address: data.address,
-                colony: data.colony,
-                postalCode: data.postal_code,
-                phone: data.phone,
-                email: data.email,
-                photo: `http://127.0.0.1:8000/utils/photo/${data.photo}`
-            });
-        case 'other':
-            return (data) => ({
-                name: data.name,
-                surname: data.surname,
-                city: data.city,
-                municipality: data.municipality,
-                address: data.address,
-                colony: data.colony,
-                postalCode: data.postal_code,
-                phone: data.phone,
-                email: data.email,
-                photo: `http://127.0.0.1:8000/utils/photo/${data.photo}`
-            });
-        default:
-            return (data) => data; //no transformar si no hay funcion definida
-    }
-};
-
 //funcion para formatear los datos del curriculum
 export const formatCVData = (data) => {
     const {
@@ -45,6 +11,8 @@ export const formatCVData = (data) => {
     return {
         name: user_info.name,
         surname: user_info.surname,
+        ocupation: user_info.ocupation,
+        personalDescription: user_info.personalDescription,
         city: user_info.city,
         municipality: user_info.municipality,
         address: user_info.address,
@@ -72,7 +40,7 @@ export const formatCVData = (data) => {
             startDate: work.work_start_date,
             endDate: work.work_end_date,
             currentlyWorking: work.currently_working,
-            activities: JSON.parse(work.activities) // Parse JSON string to object/array
+            activities: work.activities
         })),
 
         skillsRecords: user_skills.map(skill => ({

@@ -12,6 +12,8 @@ const CurriculumV = ({
     editable = false,
     name, //datos personales
     surname,
+    ocupation,
+    personalDescription,
     city,
     municipality,
     address,
@@ -203,9 +205,9 @@ const CurriculumV = ({
                         {/* Perfil */}
                         <div className="mb-4">
                             <h5 style={{ color: color }}>{getDisplayValue(name, "Lizandro")} {getDisplayValue(surname, "Pérez")}</h5>
-                            <p className="lead">Lic. en Contabilidad</p>
+                            <p className="lead">{getDisplayValue(ocupation, "Lic. en Contabilidad")}</p>
                             <h5 style={{ color: color }}>Acerca de mi</h5>
-                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Dignissimos consequuntur harum quam doloremque ullam ratione natus quasi ipsam unde deleniti. Totam quod reiciendis esse, dignissimos sapiente dolorem. Fugiat, magnam sint.</p>
+                            <p>{getDisplayValue(personalDescription, "Soy una persona dedicada, con muchas ganas de sobresalir")}</p>
                         </div>
                         {/* The time line */}
                         <div className="timeline">

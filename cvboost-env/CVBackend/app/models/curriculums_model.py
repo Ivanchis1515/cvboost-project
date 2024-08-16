@@ -9,7 +9,7 @@ class UserSectionRequest(BaseModel):
 
 #modelo para crear un cv editable
 class CVUserCreate(BaseModel):
-    id:Union[int,None] = None
+    id: Optional[int] = None  # ID del registro a actualizar
     user_id: int
     cv_id: int
     template_name: str
@@ -17,10 +17,13 @@ class CVUserCreate(BaseModel):
 
 #modelo para guardar informacion personal
 class UserInformationCreate(BaseModel):
+    id: Optional[int] = None  # ID del registro a actualizar
     cvid_user_template: int
     id_user: int
     name: str
     surname: str
+    ocupation: str
+    personalDescription: str
     city: str
     municipality: str
     address: str

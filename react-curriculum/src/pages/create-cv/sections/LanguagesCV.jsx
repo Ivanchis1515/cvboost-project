@@ -22,8 +22,8 @@ import { showErrorToast, showInfoToast, showSuccessToast } from '../../../compon
 import { templates } from '../../../utils/plantillasConfig';
 
 //helpers
-import { actualizaLenguaje, eliminarLenguaje, guardaLenguaje } from '../../../utils/curriculums/curriculums';
-
+import { actualizaLenguaje, eliminarLenguaje, guardaLenguaje, ObtenerSections, obtenerData } from '../../../utils/curriculums/curriculums';
+import { formatCVData }  from '../../../utils/curriculums/dataTransformer';
 const LanguagesCV = () => {
     const navigate = useNavigate();
     //variables globales para el contexto (retoma la plantilla y el color elegidos) anteriormente
@@ -53,13 +53,15 @@ const LanguagesCV = () => {
     const [userDataFromSections, setUserDataFromSections] = useState({}); //datos de las secciones
 
     const handleSubmit = (e) => {
-        const hasFormData = formData.languages.length === 0 || formData.languages.every(language => !language.name.trim())
-        //verifica si hay habilidades para enviar
-        if (!hasFormData) {
-            showInfoToast('Por favor, guarde sus datos para avanzar a la siguiente sección');
-            return;
-        }
         e.preventDefault();
+        // //Verifica si el formulario tiene datos o si no hay datos en languageRecords
+        // const hasFormData = formData.languages.some(language => language.name.trim() !== '');
+        // const noLanguageRecords = languageRecords.length >= 0;
+
+        // if (hasFormData || noLanguageRecords) {
+        //     showInfoToast('Por favor, guarde sus datos para avanzar a la siguiente sección');
+        //     return;
+        // }
 
         //navegar a la siguiente seccion
         navigate('/create-csv/finish');
@@ -198,7 +200,36 @@ const LanguagesCV = () => {
             }
         };
         loadComponent();
-    }, [selectedTemplate]);
+
+        const fetchData = async () => {
+            setIsLoading(true);
+            try {
+                //consulta las secciones completadas
+                const sectionsResponse = await ObtenerSections(idcv_usertemplate); //id de la plantilla actual
+                if (sectionsResponse.status === 200) {
+                    setCompletedSections(sectionsResponse.data); //asigna el resultado a una variable
+                } else {
+                    showInfoToast("Ocurrió un problema con la consulta de secciones: " + sectionsResponse.message);
+                }
+
+                //consulta los datos de las secciones completadas
+                const cvResponse = await obtenerData(idcv_usertemplate); //id de la plantilla actual
+                if (cvResponse.status === 200) {
+                    setLanguageRecords(cvResponse.data.user_languages);
+                    const formattedData = formatCVData(cvResponse.data); //fomatea los datos
+
+                    setUserDataFromSections(formattedData); //guarda los datos formateados
+                } else {
+                    showErrorToast(cvResponse.error);
+                }
+            } catch (error) {
+                showErrorToast('Error fetching data: ' + error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchData();
+    }, [selectedTemplate, idcv_usertemplate]);
     return (
         <div className="layout-top-nav layout-navbar-fixed layout-footer-fixed sidebar-collapse sidebar-mini">
             {/* Preloader */}
@@ -210,7 +241,7 @@ const LanguagesCV = () => {
             {/* Navbar */}
 
             {/* <!-- Main Sidebar Container --> */}
-            <AsideBarOr completedSections={completedSections} activeSection="languages" userData={userData} />
+            <AsideBarOr completedSections={completedSections} activeSection="user_languages" userData={userData} />
             {/* ./main sidebar */}
 
             {/* Content wrapper */}
@@ -218,14 +249,15 @@ const LanguagesCV = () => {
                 {/* Page header */}
                 <PageHeader
                     title="Curriculum vitae >"
-                    subtitle="Aptitudes"
+                    subtitle="Idiomas"
                     breadcrumbs={[
                         { label: "Inicio", href: "/" },
                         { label: "Plantillas", href: "/create-csv/select-template" },
                         { label: "Encabezado CV", href: "/create-csv/section/headerCV" },
                         { label: "Estudios CV", href: "/create-csv/section/studies" },
                         { label: "Experiencia laboral", href: "/create-csv/section/workhistory" },
-                        { label: "Aptitudes CV", active: true }
+                        { label: "Aptitudes CV", href:"/create-csv/section/skills" },
+                        { label: "Idiomas CV", active: true }
                     ]}
                 />
                 {/* ./Page header */}
@@ -258,9 +290,11 @@ const LanguagesCV = () => {
                                                             <Suspense fallback={<div>Cargando plantilla...</div>}>
                                                                 {TemplateComponent ? (
                                                                     <TemplateComponent
-
                                                                         color={selectedColor}
                                                                         editable={true}
+                                                                        {...userDataFromSections} //pasar todos los datos como propiedades
+                                                                        {...formData}
+                                                                        languageRecords={languageRecords}
                                                                     />
                                                                 ) : (
                                                                     <p>No se ha seleccionado ninguna plantilla.</p>
@@ -285,8 +319,11 @@ const LanguagesCV = () => {
                                                                         <div className="card-body">
                                                                             <Suspense fallback={<div>Cargando plantilla...</div>}>
                                                                                 <TemplateOptionComponent
-                                                                                    color={color}
-                                                                                    editable={false}
+                                                                                    color={selectedColor}
+                                                                                    editable={true}
+                                                                                    {...userDataFromSections} //pasar todos los datos como propiedades
+                                                                                    {...formData}
+                                                                                    languageRecords={languageRecords}
                                                                                 />
                                                                             </Suspense>
                                                                         </div>

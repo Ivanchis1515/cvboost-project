@@ -29,26 +29,6 @@ export const obtenerCV = async (template) => {
     return response
 }
 
-//verifica las secciones del usuario
-export const checkSections = async(cv_iduser, tables) => {
-    const url = "/cv/user-sections"
-    const response = await axiosInstance.post(url, {
-        user_id: cv_iduser, //id del documento cv que edita el usuario
-        tables: tables //lista de tablas a verificar
-    });
-    return response
-};
-
-//verifica los datos de cada seccion
-export const checkdatasection = async(cv_iduser, tables) => {
-    const url = "/cv/user-data";
-    const response = await axiosInstance.post(url, {
-        user_id: cv_iduser, //id del documento cv que edita el usuario
-        tables: tables //lista de tablas a extraer informacion
-    })
-    return response
-}
-
 //funcion para guardar foto en el backend
 export const uploadFile = async (file, username) => {
     const url = "/utils/upload";
@@ -62,6 +42,14 @@ export const uploadFile = async (file, username) => {
 
     return response;
 };
+
+//funcion para eliminar una foto del servidor
+export const deleteFile = async(name) => {
+    const url = "/utils/photo/";
+    const response = await axiosInstance.delete(url + name)
+    return response;
+}
+
 // INFORMACION PERSONAL
 //guarda la informacion de los datos personales
 export const guardarencabezadocv = async (data) => {
@@ -69,6 +57,13 @@ export const guardarencabezadocv = async (data) => {
     const response = await axiosInstance.post(url, data);
     return response;
 };
+
+//actualiza la informacion de los datos personales
+export const actualizarencabezadocv = async(data) => {
+    const url = "/cv/userinformation-update";
+    const response = await axiosInstance.put(url, data);
+    return response;
+}
 
 //INFORMACION ACADEMICA
 //guarda la informacion academica
@@ -159,6 +154,14 @@ export const eliminarLenguaje = async(id) => {
 }
 
 //LLENADO DE DATOS DEL CV
+//verificacion de apartados cv
+export const ObtenerSections = async(id) => {
+    const url = "/cv/user-sections-status/";
+    const response = await axiosInstance.get(url + id);
+    return response;
+}
+
+//obtener datos 
 export const obtenerData = async(id) => {
     const url = "/cv/get-cv-data/";
     const response = await axiosInstance.get(url + id)

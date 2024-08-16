@@ -16,14 +16,13 @@ import Footer from '../../../components/layout/Footer';
 
 //commons
 import ColorPicker from '../../../components/common/ColorPicker';
-import Slider from '../../../components/common/Slider';
 import { showErrorToast, showInfoToast, showSuccessToast } from '../../../components/common/SweetAlert2';
 //configuracion de plantillas
 import { templates } from '../../../utils/plantillasConfig';
 
 //helpers
-import { actualizarCompetencia, eliminarCompetencia, guardarCompetencia } from '../../../utils/curriculums/curriculums';
-
+import { actualizarCompetencia, eliminarCompetencia, guardarCompetencia, obtenerData, ObtenerSections } from '../../../utils/curriculums/curriculums';
+import { formatCVData } from '../../../utils/curriculums/dataTransformer';
 const SkillsCV = () => {
     const navigate = useNavigate();
     //variables globales para el contexto (retoma la plantilla y el color elegidos) anteriormente
@@ -53,14 +52,16 @@ const SkillsCV = () => {
     const [userDataFromSections, setUserDataFromSections] = useState({}); //datos de las secciones
 
     const handleSubmit = (e) => {
-        const hasFormData = formData.skills.length === 0 || formData.skills.every(skill => !skill.name.trim())
-        //verifica si hay habilidades para enviar
-        if (!hasFormData) {
+        e.preventDefault();
+        //verifica si hay datos en el formulario o si no hay datos en skillRecords
+        const hasFormData = formData.skills.some(skill => skill.name.trim() !== '');
+        const noSkillRecords = skillRecords.length > 0;
+
+        if (hasFormData || noSkillRecords) {
             showInfoToast('Por favor, guarde sus datos para avanzar a la siguiente sección');
             return;
         }
-        e.preventDefault();
-
+        
         //navegar a la siguiente seccion
         navigate('/create-csv/section/languages');
     };
@@ -196,7 +197,37 @@ const SkillsCV = () => {
             }
         };
         loadComponent();
-    }, [selectedTemplate]);
+
+        const fetchData = async () => {
+            setIsLoading(true);
+            try {
+                //consulta las secciones completadas
+                const sectionsResponse = await ObtenerSections(idcv_usertemplate); //id de la plantilla actual
+                if (sectionsResponse.status === 200) {
+                    setCompletedSections(sectionsResponse.data); //asigna el resultado a una variable
+                } else {
+                    showInfoToast("Ocurrió un problema con la consulta de secciones: " + sectionsResponse.message);
+                }
+
+                //consulta los datos de las secciones completadas
+                const cvResponse = await obtenerData(idcv_usertemplate); //id de la plantilla actual
+                if (cvResponse.status === 200) {
+                    setSkillRecords(cvResponse.data.user_skills)
+                    const formattedData = formatCVData(cvResponse.data); //fomatea los datos
+
+                    setUserDataFromSections(formattedData); //guarda los datos formateados
+                } else {
+                    showErrorToast(cvResponse.error);
+                }
+            } catch (error) {
+                showErrorToast('Error fetching data: ' + error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchData();
+    }, [selectedTemplate, idcv_usertemplate]);
+
     return (
         <div className="layout-top-nav layout-navbar-fixed layout-footer-fixed sidebar-collapse sidebar-mini">
             {/* Preloader */}
@@ -208,7 +239,7 @@ const SkillsCV = () => {
             {/* Navbar */}
 
             {/* <!-- Main Sidebar Container --> */}
-            <AsideBarOr completedSections={completedSections} activeSection="skills" userData={userData} />
+            <AsideBarOr completedSections={completedSections} activeSection="user_skills" userData={userData} />
             {/* ./main sidebar */}
 
             {/* Content wrapper */}
@@ -256,9 +287,11 @@ const SkillsCV = () => {
                                                             <Suspense fallback={<div>Cargando plantilla...</div>}>
                                                                 {TemplateComponent ? (
                                                                     <TemplateComponent
-
                                                                         color={selectedColor}
                                                                         editable={true}
+                                                                        {...userDataFromSections} //pasar todos los datos como propiedades
+                                                                        {...formData}
+                                                                        skillsRecords={skillRecords}
                                                                     />
                                                                 ) : (
                                                                     <p>No se ha seleccionado ninguna plantilla.</p>
@@ -283,8 +316,11 @@ const SkillsCV = () => {
                                                                         <div className="card-body">
                                                                             <Suspense fallback={<div>Cargando plantilla...</div>}>
                                                                                 <TemplateOptionComponent
-                                                                                    color={color}
-                                                                                    editable={false}
+                                                                                    color={selectedColor}
+                                                                                    editable={true}
+                                                                                    {...userDataFromSections} //pasar todos los datos como propiedades
+                                                                                    {...formData}
+                                                                                    skillsRecords={skillRecords}
                                                                                 />
                                                                             </Suspense>
                                                                         </div>

@@ -78,71 +78,57 @@ def create_cvuser(cv_user: CVUserCreate):
         cursor.close()
         connection.close()
 
-#endpoint para verificar en que tablas el usuario tiene informacion
-@router.post("/user-sections")
-def check_user_sections(request: UserSectionRequest):
-    connection = get_database_connection() #obtener la conexion a la base de datos
-    cursor = connection.cursor(dictionary=True) #devuelve el resultado como diccionario
-    
+#ruta para actualizar plantilla del usuario
+@router.put("/cvuser-update")
+def update_cvuser(cv_userUpdate: CVUserCreate):
+    connection = get_database_connection()  # Obtener la conexión a la base de datos
+    cursor = connection.cursor()  # Obtener el cursor
+
     try:
-        results = {}
-        
-        for table in request.tables:
-            #comprobar si la tabla existe
-            cursor.execute("SHOW TABLES LIKE %s", (table,))
-            if not cursor.fetchone():
-                raise HTTPException(status_code=400, detail=f"Tabla '{table}' no existe")
+        # Verificar si el CV existe
+        cursor.execute("SELECT id FROM CVUser WHERE id = %s", (cv_userUpdate.id,))
+        existing_cv = cursor.fetchone()  # Seleccionar el registro
 
-            #consultar la tabla para verificar si el usuario ha completado la informacion
-            query = f"SELECT COUNT(*) AS count FROM {table} WHERE cvid_user_template = %s"
-            cursor.execute(query, (request.user_id,))
-            result = cursor.fetchone()
-            results[table] = result['count'] > 0  #devuelve True si hay registros False en caso contrario
+        if not existing_cv:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="CV not found")
 
+        # Actualizar los datos en la tabla CVUser
+        update_query = """
+            UPDATE CVUser
+            SET template_name = %s, color = %s, updated_at = Now()
+            WHERE id = %s
+        """
+        cursor.execute(update_query, (cv_userUpdate.template_name, cv_userUpdate.color, cv_userUpdate.id))
+        connection.commit()
+
+        # Consultar el registro actualizado
+        select_query = "SELECT * FROM CVUser WHERE id = %s"
+        cursor.execute(select_query, (cv_userUpdate.id,))
+        updated_record = cursor.fetchone()  # Extraer únicamente el registro
+
+        if updated_record:
+            # Convertir las fechas a formato ISO para la serialización JSON
+            updated_record = {
+                "id": updated_record[0],
+                "user_id": updated_record[1],
+                "cv_id": updated_record[2],
+                "template_name": updated_record[3],
+                "color": updated_record[4],
+                "created_at": updated_record[5].isoformat() if updated_record[5] else None,
+                "updated_at": updated_record[6].isoformat() if updated_record[6] else None,
+            }
+
+        # Retornar la respuesta personalizada con status 200
         return JSONResponse(
-            status_code=200,
-            content={"status": results}
+            status_code=status.HTTP_200_OK,
+            content={
+                "msg": "Documento actualizado",
+                "data": updated_record
+            }
         )
 
     except Exception as err:
-        print(f"Error: {err}")  #depuracion
-        raise HTTPException(status_code=500, detail=f"Database error: {err}")
-    finally:
-        cursor.close()
-        connection.close()
-
-#endpoint para buscar informacion en las tablas completadas
-@router.post("/user-data")
-def get_user_data(request: UserSectionRequest):
-    connection = get_database_connection() #obten la conexion a la base de datos
-    cursor = connection.cursor(dictionary=True) #devuelve los datos como diccionario
-    
-    try:
-        results = {}
-
-        for table in request.tables:
-            #comprobar si la tabla existe
-            cursor.execute("SHOW TABLES LIKE %s", (table,))
-            if not cursor.fetchone():
-                raise HTTPException(status_code=400, detail=f"Table '{table}' does not exist")
-
-            #consultar la tabla para obtener los datos del usuario
-            query = f"SELECT * FROM {table} WHERE cvid_user_template = %s"
-            cursor.execute(query, (request.user_id,))
-            data = cursor.fetchall()
-
-            if data:
-                results[table] = data
-            else:
-                results[table] = "No data available"
-
-        return JSONResponse(
-            status_code=200,
-            content={"data": results}
-        )
-
-    except Exception as err:
-        print(f"Error: {err}")  #depuracion
+        print(f"Error: {err}")  # Depuración
         raise HTTPException(status_code=500, detail=f"Database error: {err}")
     finally:
         cursor.close()
@@ -158,14 +144,16 @@ def create_user_information(user_info: UserInformationCreate):
     try:
         insert_query = """
             INSERT INTO UserInformation 
-            (cvid_user_template, id_user, name, surname, city, municipality, address, colony, postal_code, phone, email, photo) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            (cvid_user_template, id_user, name, surname, ocupation, description, city, municipality, address, colony, postal_code, phone, email, photo) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         cursor.execute(insert_query, (
             user_info.cvid_user_template, #id del documento en edicion
             user_info.id_user, #id usuario
             user_info.name, #nombre de la plantilla
             user_info.surname, #apellido
+            user_info.ocupation, #ocupacion
+            user_info.personalDescription, #descripcion personal
             user_info.city, #ciudad
             user_info.municipality, #municipio
             user_info.address, #direccion
@@ -188,6 +176,72 @@ def create_user_information(user_info: UserInformationCreate):
     finally:
         cursor.close() #cierra el cursor
         connection.close() #cierra la conexion a la base
+
+#ruta para actualizar la informacion del usuario
+@router.put("/userinformation-update")
+def update_user_information(user_info: UserInformationCreate):
+    connection = get_database_connection()  #conecta a la base de datos
+    cursor = connection.cursor()  #obten el cursor
+
+    try:
+        #consultar si el registro existe
+        select_query = "SELECT * FROM UserInformation WHERE id = %s"
+        cursor.execute(select_query, (user_info.id,)) #ejecuta la consulta
+        existing_record = cursor.fetchone() #selecciona el unico registro
+
+        if not existing_record:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Registro no encontrado")
+        
+        #realiza la actualalizacion si si hay registro
+        update_query = """
+            UPDATE UserInformation 
+            SET 
+                cvid_user_template = %s,
+                id_user = %s,
+                name = %s,
+                surname = %s,
+                ocupation = %s,
+                description = %s,
+                city = %s,
+                municipality = %s,
+                address = %s,
+                colony = %s,
+                postal_code = %s,
+                phone = %s,
+                email = %s,
+                photo = %s
+            WHERE id = %s
+        """
+        cursor.execute(update_query, (
+            user_info.cvid_user_template,
+            user_info.id_user,
+            user_info.name,
+            user_info.surname,
+            user_info.ocupation,
+            user_info.personalDescription,
+            user_info.city,
+            user_info.municipality,
+            user_info.address,
+            user_info.colony,
+            user_info.postalCode,
+            user_info.phone,
+            user_info.email,
+            user_info.photo,
+            user_info.id  # ID del registro a actualizar
+        ))
+        connection.commit()  #ejecuta la consulta
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"message": "Información actualizada exitosamente"}
+        )
+
+    except Exception as err:
+        print(f"Error: {err}")  # Depuracion
+        raise HTTPException(status_code=500, detail=f"Database error: {err}")
+    finally:
+        cursor.close()  # Cierra el cursor
+        connection.close()  # Cierra la conexion a la base
 
 #USUARIO INFORMACION ACADEMICA
 #ruta para guardar los detalles academicos
@@ -427,8 +481,8 @@ def create_user_work_experience(work_experience: UserWorkExperienceCreate):
                 "cvid_user_template": new_record[2],
                 "position": new_record[3],
                 "company": new_record[4],
-                "work_city": new_record[5],
-                "work_municipality": new_record[6],
+                "city": new_record[5],
+                "municipality": new_record[6],
                 "work_start_date": new_record[7].isoformat() if new_record[7] else None,
                 "work_end_date": new_record[8].isoformat() if new_record[8] else None,
                 "currently_working": bool(new_record[9]),
@@ -515,8 +569,8 @@ def update_work_experience(work_experience: UserWorkExperienceCreate):
                 "user_id": updated_record[2],
                 "position": updated_record[3],
                 "company": updated_record[4],
-                "work_city": updated_record[5],
-                "work_municipality": updated_record[6],
+                "city": updated_record[5],
+                "municipality": updated_record[6],
                 "work_start_date": updated_record[7].isoformat() if updated_record[7] else None,
                 "work_end_date": updated_record[8].isoformat() if updated_record[8] else None,
                 "currently_working": updated_record[9],
@@ -928,14 +982,16 @@ def get_cv_data(cvid_user_template: int):
                     "id_user": user_info[2],
                     "name": user_info[3],
                     "surname": user_info[4],
-                    "city": user_info[5],
-                    "municipality": user_info[6],
-                    "address": user_info[7],
-                    "colony": user_info[8],
-                    "postal_code": user_info[9],
-                    "phone": user_info[10],
-                    "email": user_info[11],
-                    "photo": user_info[12]
+                    "ocupation": user_info[5],
+                    "personalDescription": user_info[6],
+                    "city": user_info[7],
+                    "municipality": user_info[8],
+                    "address": user_info[9],
+                    "colony": user_info[10],
+                    "postal_code": user_info[11],
+                    "phone": user_info[12],
+                    "email": user_info[13],
+                    "photo": user_info[14]
                 }
             return None
 
@@ -965,7 +1021,7 @@ def get_cv_data(cvid_user_template: int):
                 "work_start_date": work[7].strftime("%Y-%m-%d") if work[7] else None,
                 "work_end_date": work[8].strftime("%Y-%m-%d") if work[8] else None,
                 "currently_working": work[9],
-                "activities": work[10]
+                "activities": json.loads(work[10]) if work[10] else []
             }
 
         def serialize_user_skills(skills):
@@ -1011,6 +1067,56 @@ def get_cv_data(cvid_user_template: int):
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail="Error al obtener datos del CV")
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+#verificar que secciones estan llenas
+@router.get("/user-sections-status/{cvid_user_template}")
+def get_user_sections_status(cvid_user_template: int):
+    connection = get_database_connection() #ibtener la conexion a la base de datos
+    cursor = connection.cursor() #obtener el cursor
+
+    try:
+        #verificar si hay datos en la tabla userinformation
+        cursor.execute("SELECT EXISTS(SELECT 1 FROM userinformation WHERE cvid_user_template = %s)", (cvid_user_template,))
+        user_info_exists = cursor.fetchone()[0]
+
+        #verificar si hay datos en la tabla usereducation
+        cursor.execute("SELECT EXISTS(SELECT 1 FROM usereducation WHERE cvid_user_template = %s)", (cvid_user_template,))
+        user_education_exists = cursor.fetchone()[0]
+
+        #verificar si hay datos en la tabla userwork_experience
+        cursor.execute("SELECT EXISTS(SELECT 1 FROM userwork_experience WHERE cvid_user_template = %s)", (cvid_user_template,))
+        user_work_experience_exists = cursor.fetchone()[0]
+
+        #verificar si hay datos en la tabla user_skills
+        cursor.execute("SELECT EXISTS(SELECT 1 FROM user_skills WHERE cvid_user_template = %s)", (cvid_user_template,))
+        user_skills_exists = cursor.fetchone()[0]
+
+        #verificar si hay datos en la tabla userlanguages
+        cursor.execute("SELECT EXISTS(SELECT 1 FROM userlanguages WHERE cvid_user_template = %s)", (cvid_user_template,))
+        user_languages_exists = cursor.fetchone()[0]
+
+        #xonsolidar los resultados
+        sections_status = {
+            "user_info": user_info_exists,
+            "user_education": user_education_exists,
+            "user_work_experience": user_work_experience_exists,
+            "user_skills": user_skills_exists,
+            "user_languages": user_languages_exists
+        }
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=sections_status
+        )
+
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail="Error al obtener el estado de las secciones")
     finally:
         cursor.close()
         connection.close()

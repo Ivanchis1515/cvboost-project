@@ -21,7 +21,8 @@ import { showErrorToast, showInfoToast, showSuccessToast } from '../../../compon
 import { templates } from '../../../utils/plantillasConfig';
 
 //helpers
-import { actualizarExperiencia, eliminarExperiencia, guardarExperiencia } from '../../../utils/curriculums/curriculums';
+import { actualizarExperiencia, eliminarExperiencia, guardarExperiencia, obtenerData, ObtenerSections } from '../../../utils/curriculums/curriculums';
+import { formatCVData } from '../../../utils/curriculums/dataTransformer';
 
 const WorkhistoryCV = () => {
     const navigate = useNavigate();
@@ -68,7 +69,8 @@ const WorkhistoryCV = () => {
     const [userDataFromSections, setUserDataFromSections] = useState({}); //datos de las secciones
 
     const handleSubmit = (e) => {
-        //verifica si todos los campos del formulario estan vacios, incluyendo las actividades
+        e.preventDefault();
+        //verifica si todos los campos del formulario estan vacios incluyendo las actividades
         const hasFormData = Object.values(formData).some(value => {
             if (Array.isArray(value)) {
                 return value.some(activity => activity !== '');
@@ -76,11 +78,13 @@ const WorkhistoryCV = () => {
             return value !== '' && value !== false;
         });
 
-        if (hasFormData) {
+        // Verifica si el usuario tiene datos en workRecords
+        const hasWorkRecords = workRecords.length > 0;
+
+        if (hasFormData || !hasWorkRecords) {
             showInfoToast('Por favor, guarde sus datos para avanzar a la siguiente sección');
-            return; //no enviar datos si el formulario esta vacio
+            return; // No enviar datos ni navegar si el formulario está vacío o no hay workRecords
         }
-        e.preventDefault();
 
         //vavegar a la siguiente seccion
         navigate('/create-csv/section/skills');
@@ -173,7 +177,7 @@ const WorkhistoryCV = () => {
                 });
                 setEditId(null);
                 showSuccessToast(response.data.message) //muestra el mensaje del servidor
-            } else{
+            } else {
                 showErrorToast(response.status)
             }
         } catch (error) {
@@ -181,15 +185,15 @@ const WorkhistoryCV = () => {
         }
     };
 
-    const handleDelete = async(id) => {
+    const handleDelete = async (id) => {
         try {
             //confirmar la eliminacion con el usuario
             const confirmDelete = window.confirm("¿Estas seguro de que deseas eliminar este registro?");
             if (!confirmDelete) return;
-    
+
             //enviar la solicitud de eliminacion al endpoint
             const response = await eliminarExperiencia(id);
-    
+
             //verificar la respuesta
             if (response.status === 200) {
                 //eliminar el registro del estado
@@ -243,7 +247,36 @@ const WorkhistoryCV = () => {
             }
         };
         loadComponent();
-    }, [selectedTemplate]);
+
+        const fetchData = async () => {
+            setIsLoading(true);
+            try {
+                //consulta las secciones completadas
+                const sectionsResponse = await ObtenerSections(idcv_usertemplate); //id de la plantilla actual
+                if (sectionsResponse.status === 200) {
+                    setCompletedSections(sectionsResponse.data); //asigna el resultado a una variable
+                } else {
+                    showInfoToast("Ocurrió un problema con la consulta de secciones: " + sectionsResponse.message);
+                }
+
+                //consulta los datos de las secciones completadas
+                const cvResponse = await obtenerData(idcv_usertemplate); //id de la plantilla actual
+                if (cvResponse.status === 200) {
+                    setworkRecords(cvResponse.data.user_work_experience)
+                    const formattedData = formatCVData(cvResponse.data); //fomatea los datos
+
+                    setUserDataFromSections(formattedData); //guarda los datos formateados
+                } else {
+                    showErrorToast(cvResponse.error);
+                }
+            } catch (error) {
+                showErrorToast('Error fetching data: ' + error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchData();
+    }, [selectedTemplate, idcv_usertemplate]);
     return (
         <div className="layout-top-nav layout-navbar-fixed layout-footer-fixed sidebar-collapse sidebar-mini">
             {/* Preloader */}
@@ -255,7 +288,7 @@ const WorkhistoryCV = () => {
             {/* Navbar */}
 
             {/* <!-- Main Sidebar Container --> */}
-            <AsideBarOr completedSections={completedSections} activeSection="workhistory" userData={userData} />
+            <AsideBarOr completedSections={completedSections} activeSection="user_work_experience" userData={userData} />
             {/* ./main sidebar */}
 
             {/* Content wrapper */}
@@ -302,9 +335,11 @@ const WorkhistoryCV = () => {
                                                             <Suspense fallback={<div>Cargando plantilla...</div>}>
                                                                 {TemplateComponent ? (
                                                                     <TemplateComponent
-
-                                                                        color={selectedColor}
-                                                                        editable={true}
+                                                                    color={selectedColor}
+                                                                    editable={true}
+                                                                    {...userDataFromSections} //pasar todos los datos como propiedades
+                                                                    {...formData}
+                                                                    workRecords={workRecords}
                                                                     />
                                                                 ) : (
                                                                     <p>No se ha seleccionado ninguna plantilla.</p>
@@ -329,8 +364,11 @@ const WorkhistoryCV = () => {
                                                                         <div className="card-body">
                                                                             <Suspense fallback={<div>Cargando plantilla...</div>}>
                                                                                 <TemplateOptionComponent
-                                                                                    color={color}
-                                                                                    editable={false}
+                                                                                    color={selectedColor}
+                                                                                    editable={true}
+                                                                                    {...userDataFromSections} //pasar todos los datos como propiedades
+                                                                                    {...formData}
+                                                                                    workRecords={workRecords}
                                                                                 />
                                                                             </Suspense>
                                                                         </div>

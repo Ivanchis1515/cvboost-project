@@ -21,7 +21,7 @@ import { showErrorToast } from '../../../components/common/SweetAlert2';
 import ColorPicker from '../../../components/common/ColorPicker';
 
 //helper
-import { obtenerData } from '../../../utils/curriculums/curriculums';
+import { ObtenerSections, obtenerData } from '../../../utils/curriculums/curriculums';
 import { formatCVData } from '../../../utils/curriculums/dataTransformer';
 import downloadPDF from '../../../helpers/pdfHelper';
 
@@ -75,7 +75,16 @@ const FinishCV = () => {
 
     useEffect(() => {
         const fetchCVData = async () => {
+            setIsLoading(true);
             try {
+                //consulta las secciones completadas
+                const sectionsResponse = await ObtenerSections(idcv_usertemplate); //id de la plantilla actual
+                if (sectionsResponse.status === 200) {
+                    setCompletedSections(sectionsResponse.data); //asigna el resultado a una variable
+                } else {
+                    showInfoToast("Ocurrió un problema con la consulta de secciones: " + sectionsResponse.message);
+                }
+
                 const response = await obtenerData(idcv_usertemplate);
                 if(response.status === 200){
                     const formattedData = formatCVData(response.data);
@@ -86,6 +95,8 @@ const FinishCV = () => {
                 }
             } catch (error) {
                 showErrorToast('Error fetching CV data: '+ error);
+                setIsLoading(false);
+            } finally {
                 setIsLoading(false);
             }
         };
@@ -257,6 +268,16 @@ const FinishCV = () => {
                                     >
                                         Descargar en formato A4
                                     </button>
+                                </div>
+                                <div className="mt-3 text-center">
+                                    <Link to="/" className="btn btn-primary" onClick={() => {
+                                            localStorage.removeItem('selectedColor');
+                                            localStorage.removeItem('cv_id');
+                                            localStorage.removeItem('selectedTemplate');
+                                        }}
+                                    >
+                                        Continuar y guardar
+                                    </Link>
                                 </div>
                             </div>
                             {/* ./preview */}

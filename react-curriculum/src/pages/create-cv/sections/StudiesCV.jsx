@@ -15,12 +15,13 @@ import Footer from '../../../components/layout/Footer';
 
 //commons
 import ColorPicker from '../../../components/common/ColorPicker';
-import { showErrorToast, showInfoToast, showSuccessToast } from '../../../components/common/SweetAlert2';
+import { showErrorToast, showInfoToast, showSuccessToast, showWarningToast } from '../../../components/common/SweetAlert2';
 //configuracion de plantillas
 import { templates } from '../../../utils/plantillasConfig';
 
 //helpers
-import { actualizarEducacion, checkdatasection, checkSections, eliminarEducacion, guardareducacion } from '../../../utils/curriculums/curriculums';
+import { actualizarEducacion, eliminarEducacion, guardareducacion, obtenerData, ObtenerSections } from '../../../utils/curriculums/curriculums';
+import { formatCVData } from '../../../utils/curriculums/dataTransformer';
 
 const StudiesCV = () => {
     //variables globales para el contexto (retoma la plantilla y el color elegidos) anteriormente
@@ -70,12 +71,16 @@ const StudiesCV = () => {
     };
 
     const handleSubmit = (e) => {
-        const hasFormData = Object.values(formData).some(value => value !== '' && value !== false); //verifica si el formulario tiene datos
-        if (hasFormData) {
-            showInfoToast('Por favor, incluye tus datos para llegar a la siguiente sección');
-            return; //no enviar datos si el formulario esta vacio
+        //verifica si hay datos en el formulario
+        const hasFormData = Object.values(formData).some(value => value !== '' && value !== false && value != null);
+
+        //verifica si educationRecords tiene elementos
+        const hasEducationRecords = educationRecords.length > 0;
+
+        if (hasFormData || !hasEducationRecords) {
+            showInfoToast('Por favor, incluye todos los datos requeridos antes de avanzar.');
+            return; //no avanzar si no cumple
         }
-        e.preventDefault();
 
         // Navegar a la siguiente seccion
         navigate('/create-csv/section/workhistory');
@@ -160,7 +165,7 @@ const StudiesCV = () => {
                 });
                 setEditId(null);
                 showSuccessToast(response.data.message) //muestra el mensaje del servidor
-            } else{
+            } else {
                 showErrorToast(response.status)
             }
         } catch (error) {
@@ -174,10 +179,10 @@ const StudiesCV = () => {
             //confirmar la eliminacion con el usuario
             const confirmDelete = window.confirm("¿Estás seguro de que deseas eliminar este registro?");
             if (!confirmDelete) return;
-    
+
             //enviar la solicitud de eliminacion al endpoint
             const response = await eliminarEducacion(id);
-    
+
             //verificar la respuesta
             if (response.status === 200) {
                 //eliminar el registro del estado
@@ -230,67 +235,36 @@ const StudiesCV = () => {
             }
         };
         loadComponent();
-    }, [selectedTemplate]);
 
-    //verificar las secciones completadas
-    useEffect(() => {
-        const checkUserSections = async () => {
+        const fetchData = async () => {
+            setIsLoading(true);
             try {
-                let tables = ["userinformation"];
-                let response = await checkSections(idcv_usertemplate, tables);
-                if (response.status === 200) {
-                    setCompletedSections(response.data.status);
-                }
-            } catch (error) {
-                showErrorToast('Error al verificar las secciones.');
-            }
-        };
-        checkUserSections();
-    }, [idcv_usertemplate]);
-
-    //obtener datos del usuario de las tablas completadas
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const tables = ["userinformation"];
-                const response = await checkdatasection(idcv_usertemplate, tables);
-
-                if (response.status === 200) {
-                    const userInfoArray = response.data.data.userinformation;
-
-                    //verifica si el array tiene al menos un elemento
-                    if (userInfoArray.length > 0) {
-                        const data = userInfoArray[0];  //accede al primer objeto en el array
-
-                        const transformedData = {
-                            name: data.name,
-                            surname: data.surname,
-                            city: data.city,
-                            municipality: data.municipality,
-                            address: data.address,
-                            colony: data.colony,
-                            postalCode: data.postal_code,
-                            phone: data.phone,
-                            email: data.email,
-                            photo: `http://127.0.0.1:8000/utils/photo/${data.photo}`
-                        };
-
-                        setUserDataFromSections(transformedData);
-                    } else {
-                        throw new Error('No se encontró información del usuario.');
-                    }
+                //consulta las secciones completadas
+                const sectionsResponse = await ObtenerSections(idcv_usertemplate); //id de la plantilla actual
+                if (sectionsResponse.status === 200) {
+                    setCompletedSections(sectionsResponse.data); //asigna el resultado a una variable
                 } else {
-                    throw new Error('Error al obtener los datos del usuario.');
+                    showInfoToast("Ocurrió un problema con la consulta de secciones: " + sectionsResponse.message);
+                }
+
+                //consulta los datos de las secciones completadas
+                const cvResponse = await obtenerData(idcv_usertemplate); //id de la plantilla actual
+                if (cvResponse.status === 200) {
+                    setEducationRecords(cvResponse.data.user_education)
+                    const formattedData = formatCVData(cvResponse.data); //fomatea los datos
+
+                    setUserDataFromSections(formattedData); //guarda los datos formateados
+                } else {
+                    showErrorToast(cvResponse.error);
                 }
             } catch (error) {
-                showErrorToast(error.message || 'Error al obtener los datos del usuario.');
+                showErrorToast('Error fetching data: ' + error);
+            } finally {
+                setIsLoading(false);
             }
         };
-
-        if (completedSections.length >= 0) {
-            fetchUserData();
-        }
-    }, [completedSections, idcv_usertemplate]);
+        fetchData();
+    }, [selectedTemplate, idcv_usertemplate]);
 
     return (
         <div className="layout-top-nav layout-navbar-fixed layout-footer-fixed sidebar-collapse sidebar-mini">
@@ -303,7 +277,7 @@ const StudiesCV = () => {
             {/* Navbar */}
 
             {/* <!-- Main Sidebar Container --> */}
-            <AsideBarOr completedSections={completedSections} activeSection="studies" userData={userData} />
+            <AsideBarOr completedSections={completedSections} activeSection="user_education" userData={userData} />
             {/* ./main sidebar */}
 
             {/* Content wrapper */}
@@ -349,9 +323,11 @@ const StudiesCV = () => {
                                                             <Suspense fallback={<div>Cargando plantilla...</div>}>
                                                                 {TemplateComponent ? (
                                                                     <TemplateComponent
-
                                                                         color={selectedColor}
                                                                         editable={true}
+                                                                        {...userDataFromSections} //pasar todos los datos como propiedades
+                                                                        {...formData}
+                                                                        educationRecords={educationRecords}
                                                                     />
                                                                 ) : (
                                                                     <p>No se ha seleccionado ninguna plantilla.</p>
@@ -376,8 +352,11 @@ const StudiesCV = () => {
                                                                         <div className="card-body">
                                                                             <Suspense fallback={<div>Cargando plantilla...</div>}>
                                                                                 <TemplateOptionComponent
-                                                                                    color={color}
-                                                                                    editable={false}
+                                                                                    color={selectedColor}
+                                                                                    editable={true}
+                                                                                    {...userDataFromSections} //pasar todos los datos como propiedades
+                                                                                    {...formData}
+                                                                                    educationRecords={educationRecords}
                                                                                 />
                                                                             </Suspense>
                                                                         </div>

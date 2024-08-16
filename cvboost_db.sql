@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 14-08-2024 a las 09:19:32
+-- Tiempo de generación: 16-08-2024 a las 00:16:45
 -- Versión del servidor: 10.4.27-MariaDB
 -- Versión de PHP: 7.4.33
 
@@ -52,9 +52,9 @@ INSERT INTO `cvs` (`id`, `template_name`, `color`, `file_path`, `created_at`, `u
 
 CREATE TABLE `cvuser` (
   `id` int(11) NOT NULL,
-  `user_id` int(11) DEFAULT NULL,
-  `cv_id` int(11) DEFAULT NULL,
-  `template_name` varchar(255) DEFAULT NULL,
+  `user_id` int(11) NOT NULL,
+  `cv_id` int(11) NOT NULL,
+  `template_name` varchar(255) NOT NULL,
   `color` varchar(7) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -113,6 +113,8 @@ CREATE TABLE `userinformation` (
   `id_user` int(11) NOT NULL,
   `name` varchar(50) NOT NULL,
   `surname` varchar(80) NOT NULL,
+  `ocupation` varchar(50) NOT NULL,
+  `description` text NOT NULL,
   `city` varchar(50) DEFAULT NULL,
   `municipality` varchar(50) DEFAULT NULL,
   `address` text DEFAULT NULL,

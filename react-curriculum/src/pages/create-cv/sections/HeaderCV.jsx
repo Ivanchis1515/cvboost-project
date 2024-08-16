@@ -16,12 +16,13 @@ import Footer from '../../../components/layout/Footer';
 
 //commons
 import ColorPicker from '../../../components/common/ColorPicker';
-import { showErrorToast, showWarningToast, showInfoToast } from '../../../components/common/SweetAlert2';
+import { showErrorToast, showWarningToast, showInfoToast, showSuccessToast } from '../../../components/common/SweetAlert2';
 import { templates } from '../../../utils/plantillasConfig'; //plantilas
 
 //helper
-import { checkdatasection, checkSections, guardarencabezadocv, uploadFile } from '../../../utils/curriculums/curriculums';
-import { getTransformationFunction } from '../../../utils/curriculums/dataTransformer';
+import { actualizarencabezadocv, deleteFile, guardarencabezadocv, obtenerData, ObtenerSections, uploadFile } from '../../../utils/curriculums/curriculums';
+import { formatCVData } from '../../../utils/curriculums/dataTransformer';
+
 
 const HeaderCV = () => {
     //variables globales para el contexto (retoma la plantilla y el color elegidos) anteriormente
@@ -38,10 +39,14 @@ const HeaderCV = () => {
     const [TemplateComponent, setTemplateComponent] = useState(null); //componente de la plantilla
     const [isLoading, setIsLoading] = useState(true); //carga del preloader
     const [color, setColor] = useState(selectedColor);//color de la plantilla
+    const [buttonText, setButtonText] = useState('Siguiente'); //texto del boton
+    const [editId, setEditId] = useState(null); //id del registro
     //formdata del formulario
     const [formData, setFormData] = useState({
         name: '',
         surname: '',
+        ocupation: '',
+        personalDescription: '',
         city: '',
         municipality: '',
         address: '',
@@ -52,8 +57,9 @@ const HeaderCV = () => {
     });
     const [photo, setPhoto] = useState(null); //foto
     const [photoPreview, setPhotoPreview] = useState(null);//previsualizacion de fotografia
+    const [oldPhotoName, setOldPhotoName] = useState(''); //guarda el nombre de la foto "actual"
     const [errors, setErrors] = useState({});//almacena errores del usuario
-    const [completedSections, setCompletedSections] = useState([]); //secciones completadas
+    const [completedSections, setCompletedSections] = useState({}); //secciones completadas
     const [userDataFromSections, setUserDataFromSections] = useState({}); //datos de las secciones
 
     //llenado del formdata
@@ -116,6 +122,7 @@ const HeaderCV = () => {
         return true; //procede
     };
 
+    //insertar registros
     const handleSubmit = async () => {
         if (validateInput()) {
             try {
@@ -159,7 +166,6 @@ const HeaderCV = () => {
         }
     };
 
-
     //funcion para cambiar de plantilla
     const handleChangeTemplate = (templateName) => {
         //actualiza la variable de la plantilla
@@ -185,57 +191,120 @@ const HeaderCV = () => {
             }
         };
         loadComponent();
-    }, [selectedTemplate]);
 
-    //verificar las secciones completadas
-    useEffect(() => {
-        const checkUserSections = async () => {
+        const fetchData = async () => {
+            setIsLoading(true);
             try {
-                let tables = ["userinformation"];
-                let response = await checkSections(idcv_usertemplate, tables);
-                if (response.status === 200) {
-                    setCompletedSections(response.data.status);
-                }
-            } catch (error) {
-                showErrorToast('Error al verificar las secciones.');
-            }
-        };
-        checkUserSections();
-    }, [idcv_usertemplate]);
-
-    //obtener datos del usuario de las tablas completadas
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const tables = Object.keys(completedSections).filter(table => completedSections[table]);
-                if (tables.length === 0) return;
-
-                const response = await checkdatasection(idcv_usertemplate, tables);
-                if (response.status === 200) {
-                    const transformedData = {};
-
-                    for (const table of tables) {
-                        const tableData = response.data.data[table];
-                        if (tableData && tableData.length > 0) {
-                            const transformer = getTransformationFunction(table);
-                            transformedData[table] = transformer(tableData[0]);
-                        }
-                    }
-                    setUserDataFromSections(transformedData);
-                    
+                //consulta las secciones completadas
+                const sectionsResponse = await ObtenerSections(idcv_usertemplate); //id de la plantilla actual
+                if (sectionsResponse.status === 200) {
+                    setCompletedSections(sectionsResponse.data); //asigna el resultado a una variable
                 } else {
-                    throw new Error('Error al obtener los datos del usuario.');
+                    showInfoToast("Ocurrió un problema con la consulta de secciones: " + sectionsResponse.message);
+                }
+
+                //consulta los datos de las secciones completadas
+                const cvResponse = await obtenerData(idcv_usertemplate); //id de la plantilla actual
+                if (cvResponse.status === 200) {
+                    const userInfo = cvResponse.data.user_info; //accede a la informacion
+                    setEditId(userInfo.id); // Guarda el ID en el estado
+                    const formattedData = formatCVData(cvResponse.data); //fomatea los datos
+
+                    //actualizar formData con los datos obtenidos
+                    setFormData({
+                        name: userInfo.name || '',
+                        surname: userInfo.surname || '',
+                        ocupation: userInfo.ocupation || '',
+                        personalDescription: userInfo.personalDescription || '',
+                        city: userInfo.city || '',
+                        municipality: userInfo.municipality || '',
+                        address: userInfo.address || '',
+                        colony: userInfo.colony || '',
+                        postalCode: userInfo.postal_code || 0,
+                        phone: userInfo.phone || 0,
+                        email: userInfo.email || '',
+                    });
+
+                    //configurar previsualizacion de la foto
+                    setPhotoPreview(`http://127.0.0.1:8000/utils/photo/${userInfo.photo}`);
+                    setOldPhotoName(userInfo.photo);
+
+                    //modificar texto del boton y funcionalidad
+                    setButtonText(userInfo.name || userInfo.surname ? 'Actualizar' : 'Siguiente');
+
+                    setUserDataFromSections(formattedData); //guarda los datos formateados
+                } else {
+                    showErrorToast(cvResponse.error);
                 }
             } catch (error) {
-                showErrorToast(error.message || 'Error al obtener los datos del usuario.');
+                showErrorToast('Error fetching data: ' + error);
+                console.log(error);
+            } finally {
+                setIsLoading(false);
             }
         };
+        fetchData();
+    }, [selectedTemplate, idcv_usertemplate]);
 
-        if (completedSections && Object.keys(completedSections).length > 0) {
-            fetchUserData();
+    //actualizar registros
+    const handleUpdate = async (id) => {
+        try {
+            let photoFilename = null; //guarda el nombre de la fotografia
+            const oldPhotoFilename = oldPhotoName; // Nombre de la foto anterior
+
+            //si hay una foto y un nombre de foto anterior eliminala
+            if (photo && oldPhotoFilename) {
+                try {
+                    const response = await deleteFile(oldPhotoFilename);
+                    if (response.status === 200) {
+                        showSuccessToast(response.data.message);
+                    }
+                } catch (error) {
+                    showInfoToast("Hubo un error al eliminar la foto anterior: " + error);
+                    return;
+                }
+            }
+
+            if (photo) {
+                try {
+                    const response = await uploadFile(photo, userData?.full_name);
+                    if (response.status === 200 && response.data.filename) {
+                        photoFilename = response.data.filename;
+                        //si todo es correcto muestra el nombre del archivo
+                        showSuccessToast(response.data.filename);
+                    } else {
+                        showInfoToast(response.message);
+                    }
+                } catch (error) {
+                    showInfoToast("Hubo un error al subir la foto: " + error);
+                }
+            }
+
+
+            //aqui deberas extraer el id
+            const userInfo = {
+                id: id,
+                cvid_user_template: idcv_usertemplate,
+                id_user: userData?.id,
+                ...formData,
+                photo: photoFilename
+            };
+
+            //sube la informacion al backend
+            const response = await actualizarencabezadocv(userInfo);
+
+            if (response.status === 200) {
+                showSuccessToast(response.data.message) //muestra un mensaje de exito
+                navigate("/create-csv/section/studies");
+            } else {
+                //si la respuesta no es exitosa muestra un mensaje de error
+                showErrorToast("Error al enviar la información del usuario: " + response.message);
+            }
+        } catch (error) {
+            //si hay un error durante la solicitud muestralo al usuario
+            showErrorToast(error.message);
         }
-    }, [completedSections, idcv_usertemplate]);
-
+    }
     return (
         <div className="layout-top-nav layout-navbar-fixed layout-footer-fixed sidebar-collapse sidebar-mini">
             {/* Preloader */}
@@ -247,7 +316,7 @@ const HeaderCV = () => {
             {/* Navbar */}
 
             {/* <!-- Main Sidebar Container --> */}
-            <AsideBarOr completedSections={completedSections} activeSection="userinformation" userData={userData} />
+            <AsideBarOr completedSections={completedSections} activeSection="user_info" userData={userData} />
             {/* ./main sidebar */}
 
             {/* Content wrapper */}
@@ -293,6 +362,7 @@ const HeaderCV = () => {
                                                                 {TemplateComponent ? (
                                                                     <TemplateComponent
                                                                         {...formData}
+                                                                        {...userDataFromSections} //pasar todos los datos como propiedades
                                                                         photo={photoPreview}
                                                                         color={selectedColor}
                                                                         editable={true}
@@ -321,8 +391,9 @@ const HeaderCV = () => {
                                                                             <Suspense fallback={<div>Cargando plantilla...</div>}>
                                                                                 <TemplateOptionComponent
                                                                                     {...formData}
+                                                                                    {...userDataFromSections} //pasar todos los datos como propiedades
                                                                                     photo={photoPreview}
-                                                                                    color={color}
+                                                                                    color={selectedColor}
                                                                                     editable={true}
                                                                                 />
                                                                             </Suspense>
@@ -494,6 +565,36 @@ const HeaderCV = () => {
                                                     {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                                                 </div>
                                             </div>
+                                            <div className="col-md-6">
+                                                <div className="form-group">
+                                                    <label htmlFor="personalDescription">Ocupación:</label>
+                                                    <input
+                                                        type="text"
+                                                        id="inputOcupation"
+                                                        name="ocupation"
+                                                        className={`form-control ${errors.ocupation ? 'is-invalid' : ''}`}
+                                                        placeholder="Ingeniería en mantenimiento industrial"
+                                                        value={formData.ocupation}
+                                                        onChange={handleInputChange}
+                                                    />
+                                                    {errors.ocupation && <div className="invalid-feedback">{errors.ocupation}</div>}
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <div className="form-group">
+                                                    <label htmlFor="personalDescription">Descripción Personal</label>
+                                                    <textarea
+                                                        id="inputPersonalDescription"
+                                                        name="personalDescription"
+                                                        className={`form-control ${errors.personalDescription ? 'is-invalid' : ''}`}
+                                                        placeholder="Escribe una breve descripción sobre ti"
+                                                        rows="4"
+                                                        value={formData.personalDescription}
+                                                        onChange={handleInputChange}
+                                                    />
+                                                    {errors.personalDescription && <div className="invalid-feedback">{errors.personalDescription}</div>}
+                                                </div>
+                                            </div>
                                             <div className="col-md-12">
                                                 <div className="form-group">
                                                     <label htmlFor="photo">Fotografía</label>
@@ -515,8 +616,18 @@ const HeaderCV = () => {
                                         </div>
                                     </div>
                                     <div className="card-footer">
-                                        <button className="btn btn-success float-right" onClick={handleSubmit}>
-                                            Siguiente
+                                        <button
+                                            className="btn btn-success float-right"
+                                            id="ButtonAction"
+                                            onClick={() => {
+                                                if (buttonText === 'Actualizar') {
+                                                    handleUpdate(editId);
+                                                } else {
+                                                    handleSubmit();
+                                                }
+                                            }}
+                                        >
+                                            {buttonText}
                                         </button>
                                         <Link to="/create-csv/select-template" className="btn btn-secondary justify-content-between">
                                             Regresar
