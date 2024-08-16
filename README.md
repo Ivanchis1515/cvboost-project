@@ -84,6 +84,36 @@ python -m venv <Nombreentorno-env>
 Activación del entorno virtual en Windows, ejecuta: fastapi-env\Scripts\activate
 Activación del entorno virtual en Unix o MacOS, ejecuta: source fastapi-env/bin/activate
 ```
+
+
+Instalación de librerias para los test 
+
+
+
+```
+npm install --save-dev jest
+```
+```
+npm install --save-dev babel-jest
+@babel/core @babel/present-env
+```
+```
+npm install --save @types/jest
+```
+```
+npm install whatwg-fetch --save
+```
+```
+npm install --save-dev
+@testing-library/react
+```
+```
+npm install jest-environment-jsdom
+```
+```
+npm install --save-dev @babel/preset -react 
+```
+
 2. **Clona el repositorio:**
 ```
 bash
@@ -109,6 +139,8 @@ npm run dev
 npm run test
 
 ```
+
+
 
 
 ## Configuración del Servidor
