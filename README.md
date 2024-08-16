@@ -127,8 +127,8 @@ El backend está configurado para conectarse a una base de datos MySQL. Es cruci
 
 ## Tutorial para el Usuario
 1. **Acceso a la API:** Una vez que el backend esté corriendo, puedes acceder a la documentación interactiva de la API a través de las siguientes URLs:
-- http://<tu-url-configurada>/docs 
-- http://<tu-url-configurada>/redoc.
+- http://tu-url-configurada/docs 
+- http://tu-url-configurada/redoc.
 
 
 ## React-curriculum (front-end)
